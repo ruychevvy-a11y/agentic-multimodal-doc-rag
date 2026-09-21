@@ -6,7 +6,6 @@ from operator import itemgetter
 
 import pymupdf
 from paddleocr import PaddleOCR
-from PIL import Image
 
 from docrag import config
 from docrag.jsonl import load_jsonl, write_jsonl
@@ -21,35 +20,13 @@ TEXT_LAYER_MIN_CHARS = 50
 GARBLED_CONTROL_RATIO = 0.2
 
 
-# 页图 OCR --> Page 结构 {source, text, blocks, coord_size}
+# 页图 OCR --> Page 结构 {source, text}
 def parse_scanned_page(ocr, image_path):
-    # bbox 落在页图的像素坐标系里
-    coord_size = Image.open(image_path).size
     res = ocr.predict(image_path)
     if not res:
-        return {
-            "source": "ocr",
-            "text": "",
-            "blocks": [],
-            "coord_size": list(coord_size),
-        }
-
-    result = res[0]
-    texts = result.get("rec_texts", [])
-    boxes = result.get("rec_boxes", [])
-    scores = result.get("rec_scores", [])
-
-    # 一个 block = 一个 OCR 文本行，带 bbox 和置信度
-    blocks = [
-        {"text": text, "bbox": [int(p) for p in box], "score": round(float(score), 4)}
-        for text, box, score in zip(texts, boxes, scores)
-    ]
-    return {
-        "source": "ocr",
-        "text": " ".join(texts),
-        "blocks": blocks,
-        "coord_size": list(coord_size),
-    }
+        return {"source": "ocr", "text": ""}
+    # 识别结果里一个文本行一项，按识别顺序拼成整页正文
+    return {"source": "ocr", "text": " ".join(res[0].get("rec_texts", []))}
 
 
 # 文本层是否乱码
@@ -57,36 +34,19 @@ def is_garbled(text):
     control_chars = sum(
         unicodedata.category(char) == "Cc" and char not in "\n\t\r" for char in text
     )
+    # 控制字符占比大于GARBLED_CONTROL_RATIO
     return control_chars / len(text) > GARBLED_CONTROL_RATIO
 
 
-# PDF 文本层直接提取 --> Page 结构 {source, text, blocks, coord_size}
-def parse_pdf_text_page(page, coord_size):
-    # PDF 用 point 坐标，页图用像素坐标，scale 是换算比例
-    scale = coord_size[0] / page.rect.width
-
+# PDF 文本层直接提取 --> Page 结构 {source, text}
+def parse_pdf_text_page(page):
     # 一个 block = PDF 自带的一个文本块（约一个段落）；sort=True 自上而下排，block_type 0 是文字
-    blocks = [
-        {
-            "text": " ".join(text.split()),
-            "bbox": [
-                int(x0 * scale),
-                int(y0 * scale),
-                int(x1 * scale),
-                int(y1 * scale),
-            ],
-        }
-        for x0, y0, x1, y1, text, block_number, block_type in page.get_text(
-            "blocks", sort=True
-        )
+    texts = [
+        " ".join(text.split())
+        for *bbox, text, block_number, block_type in page.get_text("blocks", sort=True)
         if block_type == 0 and text.strip()
     ]
-    return {
-        "source": "pdf_text",
-        "text": " ".join(block["text"] for block in blocks),
-        "blocks": blocks,
-        "coord_size": list(coord_size),
-    }
+    return {"source": "pdf_text", "text": " ".join(texts)}
 
 
 # 一页 PDF --> Page 结构，有文本层直接提取，图片型页和乱码页走 OCR
@@ -96,7 +56,7 @@ def parse_pdf_page(row, document, ocr):
     text = page.get_text("text")
     if len(text) < TEXT_LAYER_MIN_CHARS or is_garbled(text):
         return parse_scanned_page(ocr, row["image_path"])
-    return parse_pdf_text_page(page, Image.open(row["image_path"]).size)
+    return parse_pdf_text_page(page)
 
 
 # pages.jsonl 逐页解析 --> corpus.jsonl

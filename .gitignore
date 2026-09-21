@@ -15,3 +15,5 @@ docs/archive/
 
 __pycache__/
 *.pyc
+
+backup/

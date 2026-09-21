@@ -70,7 +70,7 @@ HF_REPO = DATASETS[DATASET]["hf_repo"]
 TARGET_QUERIES = DATASETS[DATASET]["queries"]
 EVALUATION_ROUTES = DATASETS[DATASET]["routes"]
 
-# 页图长边上限：OCR、bbox 坐标系、图像嵌入都用这个尺寸的页图
+# 页图长边上限：OCR 和图像嵌入都用这个尺寸的页图
 MAX_SIDE = 2000
 
 
@@ -83,7 +83,7 @@ DATA_DIR = f"data/{DATASET}"
 # 页面清单 {page_id, doc_id, image_path, (page_number)}
 PAGES_PATH = f"{DATA_DIR}/pages.jsonl"
 
-# 检索语料：pages 加解析结果 {source, text, blocks, coord_size}
+# 检索语料：pages 加解析结果 {source, text}
 CORPUS_PATH = f"{DATA_DIR}/corpus.jsonl"
 
 # 视觉描述 {page_id, description}：页上的图、表、照片写成文字，建索引时拼进正文
