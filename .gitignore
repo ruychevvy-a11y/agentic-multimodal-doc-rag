@@ -17,3 +17,6 @@ __pycache__/
 *.pyc
 
 backup/
+
+# 本机备忘，不进仓库
+Milvus and Docker.txt
