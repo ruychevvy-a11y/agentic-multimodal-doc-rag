@@ -1,0 +1,12 @@
+{
+  "tag": "text_dense",
+  "scope": "closed",
+  "num_queries": 845,
+  "text_model": "qwen3.7-text-embedding",
+  "image_model": "tongyi-embedding-vision-plus",
+  "recall@1": 0.3796,
+  "recall@3": 0.5788,
+  "recall@5": 0.6553,
+  "recall@10": 0.7822,
+  "mrr": 0.6147
+}

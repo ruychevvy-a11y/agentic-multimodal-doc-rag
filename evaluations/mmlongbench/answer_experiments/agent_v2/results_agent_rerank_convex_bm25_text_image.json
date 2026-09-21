@@ -1,0 +1,69 @@
+{
+  "tag": "agent_rerank_convex_bm25_text_image",
+  "scope": "closed",
+  "num_questions": 200,
+  "generation_model": "qwen3.8-flash",
+  "extraction_model": "qwen3.7-plus",
+  "answer_pages": 4,
+  "accuracy": 0.6352,
+  "f1": 0.663,
+  "group_accuracy": {
+    "Pure-text (Plain-text)": {
+      "n": 55,
+      "accuracy": 0.6207
+    },
+    "Table": {
+      "n": 37,
+      "accuracy": 0.7356
+    },
+    "cross_page": {
+      "n": 71,
+      "accuracy": 0.678
+    },
+    "Figure": {
+      "n": 68,
+      "accuracy": 0.6627
+    },
+    "single_page": {
+      "n": 89,
+      "accuracy": 0.7293
+    },
+    "Generalized-text (Layout)": {
+      "n": 27,
+      "accuracy": 0.7002
+    },
+    "Chart": {
+      "n": 33,
+      "accuracy": 0.7525
+    },
+    "unanswerable": {
+      "n": 41,
+      "accuracy": 0.3415
+    }
+  },
+  "errors": 1,
+  "generation_input_tokens_mean": 20279,
+  "generation_output_tokens_mean": 659,
+  "extraction_input_tokens_mean": 880,
+  "extraction_output_tokens_mean": 15,
+  "generation_seconds_p50": 10.81,
+  "generation_seconds_p90": 31.8,
+  "agent": {
+    "thinking_budget": 1024,
+    "max_model_calls": 5,
+    "max_viewed_pages": 12,
+    "finished": 199,
+    "model_calls_mean": 1.67,
+    "searched_rate": 0.2915,
+    "searches_mean": 0.48,
+    "repeated_searches_mean": 0.0,
+    "viewed_pages_mean": 4.62,
+    "tool_error_rate": 0.0,
+    "search_reminders": 8,
+    "page_reminders": 4,
+    "fallback_counts": {
+      "none": 199
+    },
+    "cached_tokens_mean": 8736
+  }
+}

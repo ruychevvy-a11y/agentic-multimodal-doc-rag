@@ -1,0 +1,12 @@
+{
+  "tag": "text_bm25",
+  "scope": "open",
+  "num_queries": 2000,
+  "text_model": "text-embedding-v4",
+  "image_model": "tongyi-embedding-vision-plus",
+  "recall@1": 0.3085,
+  "recall@3": 0.429,
+  "recall@5": 0.4745,
+  "recall@10": 0.5305,
+  "mrr": 0.3799
+}

@@ -1,0 +1,17 @@
+milvus/volumes/
+
+# 可以用 build_dataset.py + parse_corpus.py 重建
+data/
+
+evaluations/**
+!evaluations/**/
+!evaluations/**/results_*.json
+
+# API Key
+.env
+
+PROMPT.md
+docs/archive/
+
+__pycache__/
+*.pyc

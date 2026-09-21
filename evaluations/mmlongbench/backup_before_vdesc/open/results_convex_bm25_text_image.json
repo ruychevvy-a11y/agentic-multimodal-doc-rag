@@ -1,0 +1,12 @@
+{
+  "tag": "convex_bm25_text_image",
+  "scope": "open",
+  "num_queries": 845,
+  "text_model": "qwen3.7-text-embedding",
+  "image_model": "tongyi-embedding-vision-plus",
+  "recall@1": 0.3584,
+  "recall@3": 0.5017,
+  "recall@5": 0.5577,
+  "recall@10": 0.6202,
+  "mrr": 0.5307
+}
