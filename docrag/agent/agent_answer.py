@@ -34,7 +34,7 @@ def generate_agent_answer(answer, pages, retrieval, pages_by_doc):
     }
 
 
-# agent 过程指标汇总
+# 汇总 agent 的过程指标（调用次数、看页数、兜底率等）
 def agent_summary(rows):
     # 作答报错的题没有过程统计
     finished = [row for row in rows if "model_calls" in row]

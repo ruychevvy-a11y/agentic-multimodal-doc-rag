@@ -15,7 +15,7 @@ def minmax(scores):
     return {page_id: (score - low) / span if span else 1.0 for page_id, score in scores.items()}
 
 
-# RRF 融合：各路按名次投票，由 Milvus hybrid_search 一次算完
+# 各路按名次投票，由 Milvus hybrid_search 一次算完
 class RRFRetrieval:
     def __init__(self, retrievals):
         self.client = milvus_client()
@@ -36,7 +36,7 @@ class RRFRetrieval:
         return [hit["page_id"] for hit in res[0]]
 
 
-# 凸组合融合：各路原始分数各自 min-max 后按权重相加，没被某路召回按 0 分
+# 各路原始分数各自 min-max 后按权重相加，没被某路召回按 0 分
 class ConvexRetrieval:
     def __init__(self, retrievals, weights):
         # zip 遇到长短不一会静默截断，个数不一致直接报错
@@ -72,18 +72,18 @@ class ConvexRetrieval:
         return self.candidates(question, config.RETRIEVE_K, search_filter)
 
 
-# 等权 RRF：BM25 + 文本 dense（MP-DocVQA 基线）
+# BM25 + 文本 dense 等权 RRF（MP-DocVQA 基线）
 def rrf_bm25_text_retrieval(questions):
     return RRFRetrieval([text_bm25_retrieval(questions), text_dense_retrieval(questions)])
 
 
-# 凸组合：BM25 + 文本 dense；先取权重，没选过权重就在嵌入问题之前报错
+# BM25 + 文本 dense 凸组合；先取权重，没选过权重就在嵌入问题之前报错
 def convex_bm25_text_retrieval(questions):
     weights = config.CONVEX_WEIGHTS["convex_bm25_text"]
     return ConvexRetrieval([text_bm25_retrieval(questions), text_dense_retrieval(questions)], weights)
 
 
-# 凸组合：BM25 + 文本 dense + 图像 dense
+# BM25 + 文本 dense + 图像 dense 凸组合
 def convex_bm25_text_image_retrieval(questions):
     weights = config.CONVEX_WEIGHTS["convex_bm25_text_image"]
     return ConvexRetrieval(

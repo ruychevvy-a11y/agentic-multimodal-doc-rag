@@ -8,7 +8,7 @@ from docrag.indexing import milvus_client
 SEARCH_PARAMS = {"params": {"ef": config.HNSW_SEARCH_EF}}
 
 
-# dense 检索：问题向量在指定向量字段里找最近的页
+# 问题向量在指定向量字段里找最近的页
 class DenseRetrieval:
     def __init__(self, vector_field, embed_query_fn, questions):
         self.client = milvus_client()

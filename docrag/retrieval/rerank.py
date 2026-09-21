@@ -28,7 +28,7 @@ def rerank_scores(question, texts):
     return scores
 
 
-# 两阶段检索：第一阶段取前 RERANK_DEPTH 页，重排后返回前 RETRIEVE_K 页
+# 第一阶段取前 RERANK_DEPTH 页，重排后返回前 RETRIEVE_K 页
 class RerankRetrieval:
     def __init__(self, first_stage):
         self.client = milvus_client()
@@ -48,11 +48,11 @@ class RerankRetrieval:
         return [page_id for page_id, score in ranked[: config.RETRIEVE_K]]
 
 
-# 重排：两路凸组合出候选
+# 两路凸组合出候选再重排
 def rerank_convex_bm25_text_retrieval(questions):
     return RerankRetrieval(convex_bm25_text_retrieval(questions))
 
 
-# 重排：三路凸组合出候选
+# 三路凸组合出候选再重排
 def rerank_convex_bm25_text_image_retrieval(questions):
     return RerankRetrieval(convex_bm25_text_image_retrieval(questions))

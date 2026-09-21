@@ -26,12 +26,12 @@ def page_contents(pages):
     return content
 
 
-# 模型回答正文
+# 从模型返回的消息里取出回答正文
 def message_text(message):
     return "".join(part["text"] for part in message.content if "text" in part)
 
 
-# 拼作答消息：每页先放 [Page 页号] 标签再放页图，最后放指令和问题 --> MultiModalConversation 的 messages
+# 每页先放 [Page 页号] 标签再放页图，最后放指令和问题 --> MultiModalConversation 的 messages
 def answer_messages(question, pages):
     content = page_contents(pages)
     content.append({"text": ANSWER_PROMPT.format(question=question)})

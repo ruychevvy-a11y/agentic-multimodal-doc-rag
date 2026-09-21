@@ -89,7 +89,7 @@ def parse_pdf_text_page(page, coord_size):
     }
 
 
-# 一页 PDF --> Page 结构：有文本层直接提取，图片型页和乱码页走 OCR
+# 一页 PDF --> Page 结构，有文本层直接提取，图片型页和乱码页走 OCR
 def parse_pdf_page(row, document, ocr):
     # PyMuPDF 下标 0 起，page_number 1 起
     page = document[row["page_number"] - 1]

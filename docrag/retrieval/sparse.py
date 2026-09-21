@@ -4,7 +4,7 @@ from docrag import config
 from docrag.indexing import milvus_client
 
 
-# BM25 检索：问题原文交给 Milvus 内置 BM25 打分
+# 问题原文交给 Milvus 内置 BM25 打分
 class BM25Retrieval:
     # questions 用不到（BM25 不需要预先嵌入），保留参数是为了和其他检索器的工厂签名一致
     def __init__(self, questions):

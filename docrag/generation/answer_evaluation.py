@@ -29,7 +29,7 @@ with open(EXTRACTION_PROMPT_PATH, encoding="utf-8") as f:
     EXTRACTION_PROMPT = f.read()
 
 
-# 抽答案：数据集官方消息结构（user 放抽取指令，assistant 放问题 + 模型的回答）
+# 抽答案的消息结构（user 放抽取指令，assistant 放问题 + 模型的回答）
 def extract_answer(question, response):
     messages = [
         {"role": "user", "content": [{"text": EXTRACTION_PROMPT}]},

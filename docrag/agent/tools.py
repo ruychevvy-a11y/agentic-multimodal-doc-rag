@@ -78,12 +78,12 @@ TOOL_SCHEMAS = [
 ]
 
 
-# 工具调用结果
+# 把工具的执行结果拼成统一结构，交回给循环
 def tool_result(text, error=False, pages=(), answer=None):
     return {"text": text, "error": error, "pages": list(pages), "answer": answer}
 
 
-# 检查页号列表
+# 判断模型给的页号参数是不是一串整数
 def is_page_number_list(numbers):
     return isinstance(numbers, list) and all(
         isinstance(number, int) and not isinstance(number, bool) for number in numbers
@@ -95,7 +95,7 @@ def page_numbers_text(numbers):
     return ", ".join(map(str, numbers))
 
 
-# 页面摘要
+# 在正文里滑窗找命中查询词最多的一段，截出来给模型看
 def excerpt(text, query):
     words = text.split()
     if not words:

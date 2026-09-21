@@ -64,7 +64,7 @@ def call_with_retry(call_fn):
 # =============================================#
 
 
-# 调多模态模型：图像和文本编码进同一个向量空间
+# 图像和文本编码进同一个向量空间
 def call_multimodal_model(inputs):
     limits = EMBEDDING_MODEL_LIMITS[config.MULTIMODAL_EMBEDDING_MODEL]
 

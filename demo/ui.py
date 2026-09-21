@@ -32,7 +32,7 @@ def load_questions(doc_id):
     return {question["query_id"]: question for question in questions}
 
 
-# 选中一道题库题：文档、题库下拉框、问题框都切到这道题；换了题目就是新话题，对话清空
+# 文档、题库下拉框、问题框都切到这道题；换了题目就是新话题，对话清空
 def use_question(question):
     st.session_state["doc_id"] = question["doc_id"]
     st.session_state["bank_choice"] = question["query_id"]
@@ -61,12 +61,12 @@ def reset_question():
     st.session_state["turns"] = []
 
 
-# 开新对话：问过的轮次全清掉
+# 问过的轮次全清掉
 def clear_turns():
     st.session_state["turns"] = []
 
 
-# 按下提问：这一轮先记进对话、问题框清空；接口等渲染到这一轮时才调
+# 这一轮先记进对话、问题框清空；接口等渲染到这一轮时才调
 def ask_question():
     question = st.session_state["question_text"].strip()
     # 按钮不设 disabled，这样打完字点一次就能问（输入框的内容点按钮时才提交）
@@ -93,7 +93,6 @@ def page_list(numbers):
 def show_pages(numbers, image_paths):
     with st.container(horizontal=True):
         for number, image_path in zip(numbers, image_paths):
-            # 定宽容器管显示宽度，图按高清发，全屏放大也清楚
             with st.container(width=PAGE_IMAGE_WIDTH):
                 st.image(image_path, caption=f"第 {number} 页")
 
@@ -110,7 +109,7 @@ def history_before(turns):
     return history
 
 
-# 调 /ask 流式接口 --> 逐条交回事件，同时存进 collected（页面重跑直接重放，不重复花钱）
+# 调 /ask 流式接口 --> 逐条交回事件，同时存进 collected
 def ask_events(question, doc_id, history, collected):
     try:
         response = requests.post(
@@ -119,7 +118,6 @@ def ask_events(question, doc_id, history, collected):
             stream=True,
         )
         response.raise_for_status()
-        # 一条 SSE 消息 b'data: {...}' --> {...}，消息之间的空行跳过
         events = (
             json.loads(line[6:])
             for line in response.iter_lines()
@@ -134,7 +132,7 @@ def ask_events(question, doc_id, history, collected):
         yield event
 
 
-# agent 每一步写进状态框：进行中转圈显示「思考中」，结束后收起 --> 最后一条事件
+# agent 每一步写进状态框，进行中显示「思考中」，结束后收起 --> 最后一条事件
 def show_steps(events):
     last_event = None
     with st.status("检索中…", expanded=True) as status:
@@ -209,7 +207,7 @@ with bank_column:
 with random_column:
     st.button("随机抽题", on_click=pick_random, use_container_width=True)
 
-# 一轮一问一答；只有刚按下提问的那轮 events 是 None，才真的调接口
+# 一轮一问一答
 for index, turn in enumerate(st.session_state["turns"]):
     with st.chat_message("user"):
         st.text(turn["question"])
@@ -228,7 +226,7 @@ for index, turn in enumerate(st.session_state["turns"]):
         if last_event and last_event["type"] == "final":
             with st.container(border=True, gap="xsmall"):
                 st.markdown("**系统回答**")
-                # 金额里的 $ 转义，免得两个 $ 之间被当成公式
+                # 金额里的 $ 转义，防止两个 $ 之间被当成公式
                 st.markdown(last_event["answer"].replace("$", r"\$"))
                 st.text(f"引用页：{page_list(last_event['cited_pages']) or '无'}")
                 if last_event["fallback"]:

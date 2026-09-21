@@ -101,7 +101,7 @@ def sse_event(payload):
     return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
 
-# 给页号配上页图路径，agent步骤中只有页号没有图片路径
+# 给页号配上页图路径，agent 步骤里只有页号没有路径
 def with_images(step, pages_by_number):
     if step["type"] == "tool":
         step["shown_images"] = [

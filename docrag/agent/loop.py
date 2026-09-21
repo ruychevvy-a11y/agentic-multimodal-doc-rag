@@ -33,7 +33,7 @@ SEARCH_REMINDER = (
 )
 
 
-# 调 agent 模型 (**parameters只在兜底时传tool_choice="none")
+# 调 agent 模型（**parameters 只在兜底时传 tool_choice="none"）
 def call_agent_model(messages, **parameters):
     started = time.perf_counter()
     resp = call_with_retry(
@@ -56,7 +56,7 @@ def call_agent_model(messages, **parameters):
     return resp.output.choices[0].message, usage
 
 
-# 取出引用页 (只取存在和看过的页)
+# 取出引用页，只留存在且看过的页
 def cited_page_numbers(text, viewed):
     lines = [line for line in text.splitlines() if "cited page" in line.lower()]
     if not lines:
@@ -77,7 +77,7 @@ def final_step(answer, cited_pages, fallback):
     }
 
 
-# 运行agent
+# 运行 agent 循环，每走一步交回一条事件
 def run_agent(question, tools, initial_pages):
     # 将page_count填入prompt
     system_prompt = AGENT_PROMPT.format(page_count=len(tools.pages_by_number))

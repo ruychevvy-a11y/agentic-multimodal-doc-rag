@@ -28,7 +28,7 @@ def milvus_client():
     return MilvusClient(uri=config.MILVUS_URI)
 
 
-# 一行（= 一页）的字段定义
+# 定义一行（= 一页）有哪些字段
 def page_schema(client):
     schema = client.create_schema()
     schema.add_field("page_id", DataType.VARCHAR, max_length=ID_MAX_LENGTH, is_primary=True)
@@ -63,7 +63,7 @@ def page_schema(client):
     return schema
 
 
-# 三个向量字段的索引
+# 给三个向量字段各建一个索引
 def page_index_params(client):
     index_params = client.prepare_index_params()
 
