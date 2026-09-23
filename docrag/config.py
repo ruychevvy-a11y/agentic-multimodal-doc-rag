@@ -203,3 +203,15 @@ AGENT_VIEW_PAGES_PER_CALL = 4
 
 # 一题总共最多看几页页图（含起点给的 ANSWER_PAGES 页）
 AGENT_MAX_VIEWED_PAGES = 12
+
+# 答案路由的权重：train_router.py 的产物，跟着代码走（data/ 不入库）
+ROUTER_WEIGHTS_PATH = os.path.join(os.path.dirname(__file__), "agent", "router_weights.json")
+
+# 答案路由：概率到这个值才采信 agent，否则用一次作答的结果
+ROUTER_THRESHOLD = 0.5
+
+# 训练路由时的交叉验证折数
+ROUTER_FOLDS = 5
+
+# 训练路由时的正则强度，越小正则越强
+ROUTER_REGULARISATION = 0.5

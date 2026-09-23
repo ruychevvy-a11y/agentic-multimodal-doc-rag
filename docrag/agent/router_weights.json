@@ -1,0 +1,20 @@
+{
+  "trained_on": "mmlongbench",
+  "scope": "closed",
+  "questions": 1082,
+  "training_samples": 186,
+  "out_of_fold_accuracy": 0.6797,
+  "weights": {
+    "searches": -0.094567,
+    "model_calls": 0.555542,
+    "viewed_pages": 0.323095,
+    "cited_pages": 0.421388,
+    "fallback": 2.665492,
+    "agent_answer_length": -0.001074,
+    "baseline_answer_length": -0.000142,
+    "agent_refused": -0.865082,
+    "baseline_refused": -0.677045,
+    "agent_output_tokens": 0.000163
+  },
+  "intercept": -2.752235
+}

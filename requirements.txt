@@ -15,5 +15,7 @@ uvicorn>=0.52
 streamlit>=1.63            # 用到 st.container(horizontal=...) 等新接口
 pydantic>=2.13
 
+scikit-learn>=1.6        # 只有 train_router.py 训练答案路由时需要，线上推理不依赖
+
 python-dotenv>=1.2
 requests>=2.34

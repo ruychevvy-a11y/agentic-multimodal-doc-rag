@@ -6,15 +6,17 @@ from operator import itemgetter
 
 from docrag import config
 from docrag.agent.agent_answer import agent_summary, generate_agent_answer
+from docrag.agent.routing import route_answer
 from docrag.generation.answer import generate_answer
 from docrag.generation.answer_evaluation import evaluate_answers
 from docrag.jsonl import load_jsonl
 from docrag.retrieval.rerank import rerank_convex_bm25_text_image_retrieval
 
-# 答案路线名, answer为单次baseline，agent为agent loop
+# 答案路线名：answer 是一次作答，agent 是 agent 循环，route 是两条都跑再按分类器择一
 ANSWER_ROUTES = {
     "answer_rerank_convex_bm25_text_image": rerank_convex_bm25_text_image_retrieval,
     "agent_rerank_convex_bm25_text_image": rerank_convex_bm25_text_image_retrieval,
+    "route_rerank_convex_bm25_text_image": rerank_convex_bm25_text_image_retrieval,
 }
 
 # 选模型 / 思考设置实验用的 200 题，agent 的对照组也在这批题上
@@ -49,10 +51,10 @@ def main():
         raise SystemExit(
             f"答案评测目前只支持 mmlongbench，当前 DATASET = {config.DATASET!r}"
         )
-    # agent 的工具只在题目所属文档里搜和看
-    is_agent = args.route.startswith("agent_")
-    if is_agent and args.scope != "closed":
-        raise SystemExit("agent 路线只支持 --scope closed")
+    # agent 的工具只在题目所属文档里搜和看；route 里面含 agent，同样受限
+    needs_agent = args.route.startswith(("agent_", "route_"))
+    if needs_agent and args.scope != "closed":
+        raise SystemExit("agent 和 route 路线只支持 --scope closed")
 
     answers = load_jsonl(config.ANSWERS_PATH)
     if args.sample:
@@ -62,15 +64,16 @@ def main():
     answers = answers[: args.limit]
     retriever = ANSWER_ROUTES[args.route]([answer["question"] for answer in answers])
 
-    if is_agent:
+    if needs_agent:
         # 同一份文档的页在 pages.jsonl 里连着
         pages = load_jsonl(config.PAGES_PATH)
         pages_by_doc = {
             doc_id: list(doc_pages)
             for doc_id, doc_pages in groupby(pages, key=itemgetter("doc_id"))
         }
+        answer_fn = route_answer if args.route.startswith("route_") else generate_agent_answer
         generate_fn = partial(
-            generate_agent_answer, retrieval=retriever, pages_by_doc=pages_by_doc
+            answer_fn, retrieval=retriever, pages_by_doc=pages_by_doc
         )
         summary_fn = agent_summary
     else:

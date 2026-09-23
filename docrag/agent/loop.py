@@ -16,14 +16,17 @@ AGENT_PROMPT = (
     "Answer only from what the pages show. If the shown pages do not clearly contain the answer, "
     "use search_pages to find other pages and view_pages to look at them before answering.\n"
     "Finish by calling answer with the answer and the viewed pages it is based on. "
-    'If the document does not contain the information, answer "Not answerable".'
+    'If the document does not contain the information, answer "Not answerable". '
+    "Never guess: if the pages you have seen do not state the answer, "
+    'answer "Not answerable" instead of reporting a related or nearby value.'
 )
 
 # 兜底时的强制作答指令
 FALLBACK_PROMPT = (
     "Answer now using only the pages you have seen. "
     'If they do not contain the information, answer "Not answerable". '
-    'End with a line "Cited pages: N, M".'
+    'End with a line "Cited pages: N, M". '
+    "Do not substitute a related value."
 )
 
 # 没搜过就答 Not answerable 时的提醒

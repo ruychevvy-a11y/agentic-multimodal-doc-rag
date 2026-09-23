@@ -1,68 +1,69 @@
 {
   "tag": "agent_rerank_convex_bm25_text_image",
   "scope": "closed",
-  "num_questions": 200,
+  "num_questions": 1082,
   "generation_model": "qwen3.8-flash",
   "extraction_model": "qwen3.7-plus",
   "answer_pages": 4,
-  "accuracy": 0.636,
-  "f1": 0.6438,
+  "accuracy": 0.6548,
+  "f1": 0.6544,
   "group_accuracy": {
-    "Pure-text (Plain-text)": {
-      "n": 55,
-      "accuracy": 0.5557
-    },
-    "Table": {
-      "n": 37,
-      "accuracy": 0.7194
-    },
-    "cross_page": {
-      "n": 71,
-      "accuracy": 0.6836
-    },
-    "Figure": {
-      "n": 68,
-      "accuracy": 0.6622
+    "Chart": {
+      "n": 178,
+      "accuracy": 0.6191
     },
     "single_page": {
-      "n": 89,
-      "accuracy": 0.6591
+      "n": 494,
+      "accuracy": 0.7028
+    },
+    "Table": {
+      "n": 218,
+      "accuracy": 0.6936
+    },
+    "cross_page": {
+      "n": 372,
+      "accuracy": 0.6326
+    },
+    "Pure-text (Plain-text)": {
+      "n": 305,
+      "accuracy": 0.6538
     },
     "Generalized-text (Layout)": {
-      "n": 27,
-      "accuracy": 0.7002
-    },
-    "Chart": {
-      "n": 33,
-      "accuracy": 0.697
+      "n": 119,
+      "accuracy": 0.707
     },
     "unanswerable": {
-      "n": 41,
-      "accuracy": 0.4878
+      "n": 223,
+      "accuracy": 0.5785
+    },
+    "Figure": {
+      "n": 304,
+      "accuracy": 0.6336
     }
   },
   "errors": 0,
-  "generation_input_tokens_mean": 20530,
-  "generation_output_tokens_mean": 595,
-  "extraction_input_tokens_mean": 876,
-  "extraction_output_tokens_mean": 15,
-  "generation_seconds_p50": 10.54,
-  "generation_seconds_p90": 29.91,
+  "generation_input_tokens_mean": 19451,
+  "generation_output_tokens_mean": 618,
+  "extraction_input_tokens_mean": 879,
+  "extraction_output_tokens_mean": 16,
+  "generation_seconds_p50": 11.09,
+  "generation_seconds_p90": 30.76,
   "agent": {
     "thinking_budget": 1024,
     "max_model_calls": 5,
     "max_viewed_pages": 12,
-    "finished": 200,
-    "model_calls_mean": 1.65,
-    "searched_rate": 0.265,
-    "searches_mean": 0.41,
+    "finished": 1082,
+    "model_calls_mean": 1.59,
+    "searched_rate": 0.2495,
+    "searches_mean": 0.47,
     "repeated_searches_mean": 0.0,
-    "viewed_pages_mean": 4.61,
-    "tool_error_rate": 0.0,
-    "reminders": 7,
+    "viewed_pages_mean": 4.45,
+    "tool_error_rate": 0.0011,
+    "reminders": 65,
     "fallback_counts": {
-      "none": 200
+      "none": 1066,
+      "max_model_calls": 16
     },
-    "cached_tokens_mean": 8817
+    "cached_tokens_mean": 8295
   }
 }
