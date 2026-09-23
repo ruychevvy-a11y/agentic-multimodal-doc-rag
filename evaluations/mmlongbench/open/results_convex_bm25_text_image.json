@@ -6,7 +6,13 @@
   "image_model": "tongyi-embedding-vision-plus",
   "recall@1": 0.3584,
   "recall@3": 0.5017,
+  "recall@4": 0.5329,
   "recall@5": 0.5577,
   "recall@10": 0.6202,
+  "coverage@1": 0.2722,
+  "coverage@3": 0.4272,
+  "coverage@4": 0.4639,
+  "coverage@5": 0.4899,
+  "coverage@10": 0.5609,
   "mrr": 0.5307
 }
