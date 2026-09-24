@@ -44,7 +44,7 @@ def call_agent_model(messages, **parameters):
             model=config.GENERATION_MODEL,
             messages=messages,
             tools=TOOL_SCHEMAS,
-            thinking_budget=config.AGENT_THINKING_BUDGET,
+            thinking_budget=config.THINKING_BUDGET,
             request_timeout=config.AGENT_REQUEST_TIMEOUT,
             api_key=config.API_KEY,
             **parameters,

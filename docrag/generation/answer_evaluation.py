@@ -266,6 +266,7 @@ def evaluate_answers(retrieval_fn, generate_fn, tag, scope, answers, summary_fn=
         "generation_model": config.GENERATION_MODEL,
         "extraction_model": EXTRACTION_MODEL,
         "answer_pages": config.ANSWER_PAGES,
+        "thinking_budget": config.THINKING_BUDGET,
         **answer_summary(answers, rows),
     }
     # summary_fn(rows) 是作答方式自己的汇总（如 agent 过程指标），没有传 None

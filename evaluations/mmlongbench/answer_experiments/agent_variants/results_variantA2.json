@@ -1,0 +1,51 @@
+{
+  "tag": "variantA2",
+  "scope": "closed",
+  "num_questions": 200,
+  "generation_model": "qwen3.8-flash",
+  "extraction_model": "qwen3.7-plus",
+  "answer_pages": 4,
+  "accuracy": 0.6826,
+  "f1": 0.6917,
+  "group_accuracy": {
+    "Pure-text (Plain-text)": {
+      "n": 55,
+      "accuracy": 0.6293
+    },
+    "Table": {
+      "n": 37,
+      "accuracy": 0.7356
+    },
+    "cross_page": {
+      "n": 71,
+      "accuracy": 0.7484
+    },
+    "Figure": {
+      "n": 68,
+      "accuracy": 0.7344
+    },
+    "single_page": {
+      "n": 89,
+      "accuracy": 0.7008
+    },
+    "Generalized-text (Layout)": {
+      "n": 27,
+      "accuracy": 0.7372
+    },
+    "Chart": {
+      "n": 33,
+      "accuracy": 0.7576
+    },
+    "unanswerable": {
+      "n": 41,
+      "accuracy": 0.5122
+    }
+  },
+  "errors": 1,
+  "generation_input_tokens_mean": 18050,
+  "generation_output_tokens_mean": 572,
+  "extraction_input_tokens_mean": 868,
+  "extraction_output_tokens_mean": 15,
+  "generation_seconds_p50": 10.2,
+  "generation_seconds_p90": 27.2
+}

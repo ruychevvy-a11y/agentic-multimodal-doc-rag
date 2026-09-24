@@ -1,0 +1,47 @@
+{
+  "tag": "variantCalc",
+  "scope": "closed",
+  "num_questions": 458,
+  "generation_model": "qwen3.8-flash",
+  "extraction_model": "qwen3.7-plus",
+  "answer_pages": 4,
+  "accuracy": 0.7074,
+  "f1": 0.7192,
+  "group_accuracy": {
+    "Pure-text (Plain-text)": {
+      "n": 131,
+      "accuracy": 0.7099
+    },
+    "cross_page": {
+      "n": 233,
+      "accuracy": 0.6481
+    },
+    "Chart": {
+      "n": 107,
+      "accuracy": 0.6822
+    },
+    "Generalized-text (Layout)": {
+      "n": 58,
+      "accuracy": 0.6724
+    },
+    "single_page": {
+      "n": 225,
+      "accuracy": 0.7689
+    },
+    "Figure": {
+      "n": 152,
+      "accuracy": 0.6579
+    },
+    "Table": {
+      "n": 152,
+      "accuracy": 0.75
+    }
+  },
+  "errors": 0,
+  "generation_input_tokens_mean": 24350,
+  "generation_output_tokens_mean": 705,
+  "extraction_input_tokens_mean": 874,
+  "extraction_output_tokens_mean": 13,
+  "generation_seconds_p50": 13.45,
+  "generation_seconds_p90": 37.79
+}

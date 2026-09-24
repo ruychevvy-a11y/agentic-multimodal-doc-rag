@@ -11,6 +11,11 @@ def generate_agent_answer(answer, pages, retrieval, pages_by_doc):
         retrieval, answer["doc_id"], pages_by_doc[answer["doc_id"]], pages
     )
     steps = list(run_agent(answer["question"], tools, pages))
+    return agent_record(steps, tools)
+
+
+# agent 走完的步骤 --> 答案 + token + 过程统计；评测和 demo 的答案路由共用
+def agent_record(steps, tools):
     model_steps = [step for step in steps if step["type"] == "model_call"]
     tool_steps = [step for step in steps if step["type"] == "tool"]
     final = steps[-1]
@@ -51,7 +56,7 @@ def agent_summary(rows):
     fallbacks = Counter(row["fallback"] or "none" for row in finished)
     return {
         "agent": {
-            "thinking_budget": config.AGENT_THINKING_BUDGET,
+            "thinking_budget": config.THINKING_BUDGET,
             "max_model_calls": config.AGENT_MAX_MODEL_CALLS,
             "max_viewed_pages": config.AGENT_MAX_VIEWED_PAGES,
             "finished": len(finished),

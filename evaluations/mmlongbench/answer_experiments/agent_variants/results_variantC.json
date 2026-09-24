@@ -1,0 +1,51 @@
+{
+  "tag": "variantC",
+  "scope": "closed",
+  "num_questions": 200,
+  "generation_model": "qwen3.8-flash",
+  "extraction_model": "qwen3.7-plus",
+  "answer_pages": 4,
+  "accuracy": 0.7048,
+  "f1": 0.7127,
+  "group_accuracy": {
+    "Pure-text (Plain-text)": {
+      "n": 55,
+      "accuracy": 0.654
+    },
+    "Table": {
+      "n": 37,
+      "accuracy": 0.7446
+    },
+    "cross_page": {
+      "n": 71,
+      "accuracy": 0.7202
+    },
+    "Figure": {
+      "n": 68,
+      "accuracy": 0.7326
+    },
+    "single_page": {
+      "n": 89,
+      "accuracy": 0.762
+    },
+    "Generalized-text (Layout)": {
+      "n": 27,
+      "accuracy": 0.7742
+    },
+    "Chart": {
+      "n": 33,
+      "accuracy": 0.7828
+    },
+    "unanswerable": {
+      "n": 41,
+      "accuracy": 0.561
+    }
+  },
+  "errors": 1,
+  "generation_input_tokens_mean": 23346,
+  "generation_output_tokens_mean": 727,
+  "extraction_input_tokens_mean": 870,
+  "extraction_output_tokens_mean": 15,
+  "generation_seconds_p50": 15.42,
+  "generation_seconds_p90": 31.07
+}

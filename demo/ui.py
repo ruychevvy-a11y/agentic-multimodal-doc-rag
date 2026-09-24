@@ -15,6 +15,9 @@ FALLBACK_REASONS = {
     "timeout": "模型调用超时，用看过的页强制作答",
 }
 
+# 路由采信的路线
+ROUTE_NAMES = {"agent": "agent", "baseline": "一次作答"}
+
 st.set_page_config(page_title="混合多模态文档问答", layout="wide")
 
 
@@ -97,14 +100,14 @@ def show_pages(numbers, image_paths):
                 st.image(image_path, caption=f"第 {number} 页")
 
 
-# 答成了的轮次 --> [{question, answer}]，发给后端把追问补成完整问题
+# 答成了的轮次 --> [{question, answer}]，发给后端把追问补成完整问题；答案取路由采信的那条
 def history_before(turns):
     history = []
     for turn in turns:
-        finals = [event for event in turn["events"] or [] if event["type"] == "final"]
-        if finals:
+        routes = [event for event in turn["events"] or [] if event["type"] == "route"]
+        if routes:
             history.append(
-                {"question": turn["question"], "answer": finals[-1]["answer"]}
+                {"question": turn["question"], "answer": routes[-1]["answer"]}
             )
     return history
 
@@ -130,6 +133,13 @@ def ask_events(question, doc_id, history, collected):
     for event in events:
         collected.append(event)
         yield event
+
+
+# 路由依据 --> '分类器，agent 概率 0.73' / '一次作答 10 秒内没答完'
+def route_basis(event):
+    if event["agent_probability"] is None:
+        return event["reason"]
+    return f"{event['reason']}，agent 概率 {event['agent_probability']:.2f}"
 
 
 # agent 每一步写进状态框，进行中显示「思考中」，结束后收起 --> 最后一条事件
@@ -159,9 +169,14 @@ def show_steps(events):
                     st.text(event["text"])
             elif event["type"] == "tool":
                 st.text(f"提交答案（{event['text']}）")
+            elif event["type"] == "final":
+                st.text("agent 答完，等一次作答后择一")
+                status.update(label="路由中…", expanded=True)
+            elif event["type"] == "route":
+                st.text(f"路由：采信{ROUTE_NAMES[event['route']]}（{route_basis(event)}）")
             elif event["type"] == "error":
                 st.error(event["message"])
-        if last_event is None or last_event["type"] not in ("final", "error"):
+        if last_event is None or last_event["type"] not in ("route", "error"):
             status.update(label="回答中途断了，再问一次", state="error", expanded=True)
         elif last_event["type"] == "error":
             status.update(label="出错了", state="error", expanded=True)
@@ -223,14 +238,22 @@ for index, turn in enumerate(st.session_state["turns"]):
         else:
             events = turn["events"]
         last_event = show_steps(events)
-        if last_event and last_event["type"] == "final":
+        if last_event and last_event["type"] == "route":
             with st.container(border=True, gap="xsmall"):
                 st.markdown("**系统回答**")
                 # 金额里的 $ 转义，防止两个 $ 之间被当成公式
                 st.markdown(last_event["answer"].replace("$", r"\$"))
                 st.text(f"引用页：{page_list(last_event['cited_pages']) or '无'}")
+                st.caption(
+                    f"采信{ROUTE_NAMES[last_event['route']]}（{route_basis(last_event)}）"
+                )
                 if last_event["fallback"]:
                     st.caption(FALLBACK_REASONS[last_event["fallback"]])
+                with st.expander("两条路线各自的回答"):
+                    st.markdown("**agent**")
+                    st.text(last_event["agent_answer"])
+                    st.markdown("**一次作答**")
+                    st.text(last_event["baseline_answer"] or "没等到")
             show_pages(last_event["cited_pages"], last_event["cited_images"])
         # 原样问的题库题附上标注对照
         if turn["gold"]:

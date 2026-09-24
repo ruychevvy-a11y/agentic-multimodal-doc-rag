@@ -1,6 +1,7 @@
 import json
 import random
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from itertools import groupby
 from operator import itemgetter
@@ -11,14 +12,23 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from docrag import config
-from docrag.agent.loop import run_agent
+from docrag.agent.agent_answer import agent_record
+from docrag.agent.loop import cited_page_numbers, run_agent
+from docrag.agent.routing import load_router, route, routing_features
 from docrag.agent.tools import DocumentTools
+from docrag.generation.answer import generate_answer
 from docrag.generation.rewrite import rewrite_question
 from docrag.jsonl import load_jsonl
 from docrag.retrieval.rerank import rerank_convex_bm25_text_image_retrieval
 
 # 改写追问时最多带几轮历史
 HISTORY_ROUNDS = 3
+
+# 一次作答和 agent 并行跑；agent 答完后最多再等一次作答这么多秒，没等到就直接用 agent 的答案
+ROUTE_WAIT_SECONDS = 10
+
+# 后台跑一次作答的线程数
+BASELINE_WORKERS = 4
 
 # 启动时加载一次、所有请求共用的资源
 resources = {}
@@ -42,7 +52,9 @@ async def lifespan(app):
         for doc_id, doc_pages in groupby(pages, key=itemgetter("doc_id"))
     }
     resources["retrieval"] = rerank_convex_bm25_text_image_retrieval([])
+    resources["baseline_pool"] = ThreadPoolExecutor(max_workers=BASELINE_WORKERS)
     yield
+    resources["baseline_pool"].shutdown(wait=False, cancel_futures=True)
     resources.clear()
 
 
@@ -114,7 +126,56 @@ def with_images(step, pages_by_number):
     return step
 
 
-# 提问：检索起点页 --> agent 每走一步推一条 SSE
+# 等一次作答：agent 答完后最多再等 ROUTE_WAIT_SECONDS 秒 --> (一次作答结果, 没等到的原因)；等到了原因是 None
+def wait_baseline(baseline_future):
+    try:
+        return baseline_future.result(timeout=ROUTE_WAIT_SECONDS), None
+    except TimeoutError:
+        return None, f"一次作答 {ROUTE_WAIT_SECONDS} 秒内没答完"
+    except (RuntimeError, requests.exceptions.ReadTimeout) as error:
+        return None, f"一次作答出错：{error!r}"
+
+
+# 去掉回答里的 Cited pages 行，引用页另外显示
+def without_citation_line(text):
+    lines = [line for line in text.splitlines() if "cited page" not in line.lower()]
+    return "\n".join(lines).strip()
+
+
+# 两条路的结果 --> route 事件：采信哪条、依据、最终答案和引用页，附两条路各自的回答；一次作答缺席时直接用 agent
+def route_event(agent_result, baseline, missing_reason, initial_pages, pages_by_number):
+    if baseline is None:
+        use_agent, probability, reason = True, None, missing_reason
+    else:
+        router = load_router()
+        use_agent, probability = route(
+            routing_features(agent_result, baseline["response"]), router
+        )
+        reason = "分类器" if router else "手工规则：agent 检索过才采信"
+    if use_agent:
+        answer = agent_result["response"]
+        cited_pages = agent_result["cited_pages"]
+    else:
+        answer = baseline["response"]
+        # 一次作答在最后一行写 Cited pages，只认给它看过的起点页
+        cited_pages = cited_page_numbers(
+            answer, {page["page_number"] for page in initial_pages}
+        )
+    return {
+        "type": "route",
+        "route": "agent" if use_agent else "baseline",
+        "agent_probability": None if probability is None else round(probability, 3),
+        "reason": reason,
+        "answer": without_citation_line(answer),
+        "cited_pages": cited_pages,
+        "cited_images": [pages_by_number[number]["image_path"] for number in cited_pages],
+        "fallback": agent_result["fallback"] if use_agent else None,
+        "agent_answer": agent_result["response"],
+        "baseline_answer": None if baseline is None else baseline["response"],
+    }
+
+
+# 提问：检索起点页 --> 一次作答放后台线程，agent 每走一步推一条 SSE --> 两条路择一，最后推一条 route 事件
 @app.post("/ask")
 def ask(request: AskRequest):
     if request.doc_id not in resources["pages_by_doc"]:
@@ -145,11 +206,27 @@ def ask(request: AskRequest):
                     "images": [page["image_path"] for page in initial_pages],
                 }
             )
+            # 一次作答不依赖 agent，丢到后台线程和 agent 并行
+            baseline_future = resources["baseline_pool"].submit(
+                generate_answer, question, initial_pages
+            )
             tools = DocumentTools(
                 resources["retrieval"], request.doc_id, doc_pages, initial_pages
             )
+            steps = []
             for step in run_agent(question, tools, initial_pages):
+                steps.append(step)
                 yield sse_event(with_images(step, tools.pages_by_number))
+            baseline, missing_reason = wait_baseline(baseline_future)
+            yield sse_event(
+                route_event(
+                    agent_record(steps, tools),
+                    baseline,
+                    missing_reason,
+                    initial_pages,
+                    tools.pages_by_number,
+                )
+            )
         except (RuntimeError, requests.exceptions.ReadTimeout) as error:
             yield sse_event({"type": "error", "message": repr(error)})
 

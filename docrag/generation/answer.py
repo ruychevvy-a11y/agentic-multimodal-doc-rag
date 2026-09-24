@@ -44,6 +44,7 @@ def generate_answer(question, pages):
         lambda: MultiModalConversation.call(
             model=config.GENERATION_MODEL,
             messages=answer_messages(question, pages),
+            thinking_budget=config.THINKING_BUDGET,
             api_key=config.API_KEY,
         )
     )
