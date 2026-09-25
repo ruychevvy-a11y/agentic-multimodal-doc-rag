@@ -1,5 +1,7 @@
 # 混合多模态文档 RAG
 
+**简体中文** | [English](README.en.md)
+
 > 面向长 PDF 的文档问答：每一页同时作为**文本**和**图像**建立索引，由视觉模型依据页图作答；每道题同时走**一次作答**和 **agent** 两条路线，再由一个轻量分类器按作答过程择一。
 
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
