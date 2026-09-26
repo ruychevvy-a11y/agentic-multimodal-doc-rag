@@ -10,16 +10,17 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.63-FF4B4B?logo=streamlit&logoColor=white)
 ![Benchmark](https://img.shields.io/badge/benchmark-MMLongBench--Doc-6E44FF)
 
-![One round of Q&A: answer + thumbnails of the cited pages (UI in Chinese)](img/demo-1-answer.png)
+![Three questions in a row on one Costco annual report](img/en.gif)
 
-On [MMLongBench-Doc](https://huggingface.co/datasets/yubo2333/MMLongBench-Doc) (snapshot of 2026-09-14: 135 PDFs, 6522 pages, 1082 questions, 48 pages per document on average), closed-domain retrieval reaches **r@1 0.581** and answering reaches **Acc 0.677** (routing between the two answer routes; one-shot answering alone scores 0.643). Every comparison comes with a paired bootstrap 95% confidence interval.
+*Demo: three questions in a row on Costco's 2021 annual report — reading a table --> a follow-up completed from the conversation --> EBITDA, which the report never states, found and computed by the agent after searching and turning pages; the router adopts the agent.*
+
+On [MMLongBench-Doc](https://huggingface.co/datasets/yubo2333/MMLongBench-Doc) (snapshot of 2026-09-14: 135 PDFs, 6522 pages, 1082 questions, 48 pages per document on average), closed-domain retrieval reaches **r@1 0.581 / r@10 0.897** and answering reaches **Acc 0.677**. Every comparison comes with a paired bootstrap 95% confidence interval.
 
 ## Contents
 
 - [Hybrid Multimodal Document RAG](#hybrid-multimodal-document-rag)
   - [Contents](#contents)
   - [Features](#features)
-    - [Interface](#interface)
   - [How it works](#how-it-works)
   - [Models](#models)
   - [Results](#results)
@@ -39,41 +40,49 @@ On [MMLongBench-Doc](https://huggingface.co/datasets/yubo2333/MMLongBench-Doc) (
 - **Two answer routes, one picked per question**: one-shot answering reads the top 4 pages; the agent can search again with new keywords and jump to pages by number. Both run in parallel, then a lightweight classifier decides which answer to trust based on how each was produced — the agent is stronger on multi-page questions, one-shot answering is more reliable when the document does not contain the answer.
 - **Visible reasoning**: the UI streams the starting pages, each model call, search queries and viewed pages, which route the router adopted, and both candidate answers.
 - **Follow-up questions**: a follow-up is rewritten into a self-contained question using the conversation before retrieval.
+- **Chinese / English UI**: switch the language at the top right, or open the page with `?lang=en` to start in English.
 - **Built-in evaluation**: retrieval metrics, answer evaluation, per-group breakdowns and paired bootstrap confidence intervals all live in the repository.
-
-### Interface
-
-This question cites three pages:
-
-![A question in Chinese citing three pages](img/demo-2-cited-pages.png)
-
-For the follow-up "Roughly what share of total revenue do membership fees make up?", the system completes the question from the conversation, retrieves again and gives the ratio:
-
-![Follow-up question](img/demo-3-followup.png)
 
 ## How it works
 
-```
-PDF ──render──> page image (long side 2000 px)
-              ├─ text layer if present; scanned / garbled pages go through PaddleOCR ───> page text
-              └─ vision model describes the charts and photos on each page ───> "Visual content: ..."
-                                                │
-                   page text + visual description ──┴──> Milvus (one row per page)
-                                                     ├ BM25 sparse vector (computed by a built-in Milvus Function)
-                                                     ├ text dense, 1024 dims
-                                                     └ image dense, 1152 dims
+**Indexing** (offline, one Milvus row per page)
 
-question ──> top 50 from each route ──convex combination (0.25 / 0.55 / 0.20)──> top 30 ──rerank──> top 10
-                                                                    │
-                                                  top 4 page images ──┤
-                                                                    │
-                        ┌───────────────────────────────────────────┴──────────────┐
-                        ▼                                                          ▼
-               one-shot answering                        agent: search_pages / view_pages / answer
-                        │                                                          │
-                        └──────────────> router (10 process features) <────────────┘
-                                                │
-                                        adopt one of the two
+```mermaid
+flowchart LR
+    pdf["PDF"] --> image["Page image<br/>long side 2000 px"]
+    image --> text["Page text<br/>text layer or OCR"]
+    image --> describe["Visual description<br/>charts, tables, photos"]
+    text --> merged["Page text +<br/>visual description"]
+    describe --> merged
+    subgraph milvus["Milvus: one row per page"]
+        bm25["BM25 sparse vector"]
+        textvec["Text vector, 1024 dims"]
+        imagevec["Image vector, 1152 dims"]
+    end
+    merged --> bm25
+    merged --> textvec
+    image --> imagevec
+```
+
+**Answering a question** (online)
+
+```mermaid
+flowchart TD
+    question(["Question"]) --> retrieval
+    subgraph retrieval["Retrieval"]
+        direction LR
+        recall["Three routes<br/>top 50 each"] --> convex["Convex combination<br/>top 30"] --> rerank["Reranking<br/>top 10"]
+    end
+    retrieval --> top4["Top 4 page images"]
+    top4 --> routes
+    subgraph routes["Two routes in parallel"]
+        direction LR
+        oneshot["One-shot answer<br/>reads these 4 pages"]
+        agent["Agent<br/>searches, turns pages<br/>max 5 calls / 12 pages"]
+        oneshot ~~~ agent
+    end
+    routes --> router{{"Router<br/>10 process features"}}
+    router --> final(["Final answer + cited pages"])
 ```
 
 **Parsing**: pages with a PDF text layer are extracted block by block in reading order; pages whose text layer is too short or garbled go through PaddleOCR. Page images are scaled to a 2000 px long side, which leaves OCR output unchanged while cutting OCR time and image-embedding cost.
@@ -103,7 +112,6 @@ All models are served by Alibaba Cloud [Model Studio (Bailian)](https://bailian.
 | Answer extraction (evaluation) | qwen3.7-plus | Extracts a comparable answer from free text during scoring |
 
 Model names and the thinking budget (`THINKING_BUDGET = 1024`, shared by both routes) live in `docrag/config.py`; the two constants for follow-up rewriting and answer extraction sit at the top of their own modules. Swapping a model is a one-line change. Every choice is backed by a controlled comparison — see [Design decisions](#design-decisions).
-
 
 ## Results
 
@@ -209,7 +217,6 @@ Each choice rests on a controlled comparison; full numbers are in [docs/results_
 | No LangChain / LlamaIndex | Framework abstractions wrap retrieval, prompts and the agent loop, putting a layer between you and every detail and bug; the whole pipeline is about 2200 lines written from scratch |
 | Pick one of two answer routes per question | The agent alone ties (+0.012); routing on process features gives +0.034\*, keeping the multi-page gain (0.618) and restoring unanswerable questions (0.700) |
 | Record negative results too | Chunking, a different embedding model, structured tables and a larger OCR model were all insignificant or worse |
-
 
 ## Running
 

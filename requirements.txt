@@ -1,21 +1,14 @@
-# 检索 / 作答链路
-dashscope>=1.27.2          # 通义百炼：嵌入、重排、视觉作答
-pymilvus>=3.0.1            # 向量库客户端
+dashscope>=1.27.2
+pymilvus>=3.0.1
 numpy>=2.3
-
-# 数据集构建与解析
-pymupdf>=1.28.2            # PDF 渲染页图 + 取文本层
-paddleocr>=3.7.0           # 扫描页 OCR（需要 paddlepaddle 或 paddlepaddle-gpu）
+pymupdf>=1.28.2
+paddleocr>=3.7.0
 pillow>=12.0
-datasets>=5.0.1            # 从 HuggingFace 下载 MMLongBench-Doc
-
-# demo
+datasets>=5.0.1
 fastapi>=0.141
 uvicorn>=0.52
-streamlit>=1.63            # 用到 st.container(horizontal=...) 等新接口
+streamlit>=1.63
 pydantic>=2.13
-
-scikit-learn>=1.6        # 只有 train_router.py 训练答案路由时需要，线上推理不依赖
-
+scikit-learn>=1.6
 python-dotenv>=1.2
 requests>=2.34

@@ -126,14 +126,14 @@ def with_images(step, pages_by_number):
     return step
 
 
-# 等一次作答：agent 答完后最多再等 ROUTE_WAIT_SECONDS 秒 --> (一次作答结果, 没等到的原因)；等到了原因是 None
+# 等一次作答：agent 答完后最多再等 ROUTE_WAIT_SECONDS 秒 --> (一次作答结果, 没等到的原因代码, 报错内容)
 def wait_baseline(baseline_future):
     try:
-        return baseline_future.result(timeout=ROUTE_WAIT_SECONDS), None
+        return baseline_future.result(timeout=ROUTE_WAIT_SECONDS), None, None
     except TimeoutError:
-        return None, f"一次作答 {ROUTE_WAIT_SECONDS} 秒内没答完"
+        return None, "baseline_timeout", None
     except (RuntimeError, requests.exceptions.ReadTimeout) as error:
-        return None, f"一次作答出错：{error!r}"
+        return None, "baseline_error", repr(error)
 
 
 # 去掉回答里的 Cited pages 行，引用页另外显示
@@ -143,7 +143,8 @@ def without_citation_line(text):
 
 
 # 两条路的结果 --> route 事件：采信哪条、依据、最终答案和引用页，附两条路各自的回答；一次作答缺席时直接用 agent
-def route_event(agent_result, baseline, missing_reason, initial_pages, pages_by_number):
+# 依据只发代码（classifier / rule / baseline_timeout / baseline_error），界面按语言翻译
+def route_event(agent_result, baseline, missing_reason, baseline_error, initial_pages, pages_by_number):
     if baseline is None:
         use_agent, probability, reason = True, None, missing_reason
     else:
@@ -151,7 +152,7 @@ def route_event(agent_result, baseline, missing_reason, initial_pages, pages_by_
         use_agent, probability = route(
             routing_features(agent_result, baseline["response"]), router
         )
-        reason = "分类器" if router else "手工规则：agent 检索过才采信"
+        reason = "classifier" if router else "rule"
     if use_agent:
         answer = agent_result["response"]
         cited_pages = agent_result["cited_pages"]
@@ -166,12 +167,14 @@ def route_event(agent_result, baseline, missing_reason, initial_pages, pages_by_
         "route": "agent" if use_agent else "baseline",
         "agent_probability": None if probability is None else round(probability, 3),
         "reason": reason,
+        "wait_seconds": ROUTE_WAIT_SECONDS,
         "answer": without_citation_line(answer),
         "cited_pages": cited_pages,
         "cited_images": [pages_by_number[number]["image_path"] for number in cited_pages],
         "fallback": agent_result["fallback"] if use_agent else None,
         "agent_answer": agent_result["response"],
         "baseline_answer": None if baseline is None else baseline["response"],
+        "baseline_error": baseline_error,
     }
 
 
@@ -217,12 +220,13 @@ def ask(request: AskRequest):
             for step in run_agent(question, tools, initial_pages):
                 steps.append(step)
                 yield sse_event(with_images(step, tools.pages_by_number))
-            baseline, missing_reason = wait_baseline(baseline_future)
+            baseline, missing_reason, baseline_error = wait_baseline(baseline_future)
             yield sse_event(
                 route_event(
                     agent_record(steps, tools),
                     baseline,
                     missing_reason,
+                    baseline_error,
                     initial_pages,
                     tools.pages_by_number,
                 )

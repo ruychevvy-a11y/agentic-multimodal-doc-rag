@@ -10,16 +10,17 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.63-FF4B4B?logo=streamlit&logoColor=white)
 ![Benchmark](https://img.shields.io/badge/benchmark-MMLongBench--Doc-6E44FF)
 
-![问答一轮：答案 + 引用页缩略图](img/demo-1-answer.png)
+![在同一份 Costco 年报上连问三轮](img/zh.gif)
 
-在 [MMLongBench-Doc](https://huggingface.co/datasets/yubo2333/MMLongBench-Doc)（2026-09-14 快照：135 份 PDF、6522 页、1082 题，平均 48 页 / 份）上，闭域检索 **r@1 0.581**、作答 **Acc 0.677**（两条路线按题择一；单用一次作答为 0.643）。所有对比结论都带配对 bootstrap 95% 置信区间。
+*演示：在 Costco 2021 年报上连问三轮——读表格 --> 追问时结合上文补全问题 --> 年报里没有直接给出的 EBITDA，由 agent 检索、翻页后算出，路由采信 agent。*
+
+在 [MMLongBench-Doc](https://huggingface.co/datasets/yubo2333/MMLongBench-Doc)（2026-09-14 快照：135 份 PDF、6522 页、1082 题，平均 48 页 / 份）上，闭域检索 **r@1 0.581 / r@10 0.897**，作答 **Acc 0.677**。所有对比结论都带配对 bootstrap 95% 置信区间。
 
 ## 目录
 
 - [混合多模态文档 RAG](#混合多模态文档-rag)
   - [目录](#目录)
   - [功能](#功能)
-    - [界面](#界面)
   - [工作原理](#工作原理)
   - [模型](#模型)
   - [效果](#效果)
@@ -39,41 +40,49 @@
 - **两条作答路线，按题择一**：一次作答直接看前 4 页；agent 可以更换关键词重新检索、按页号翻页。两条并行跑完后，由一个轻量分类器根据作答过程决定采信哪一条——agent 在跨页题上更强，一次作答在「文档中没有」的题上更可靠。
 - **过程可见**：界面实时显示检索到的起点页、模型调用轮次、检索词与查看过的页，以及路由最终采信了哪条路线、两条路线各自的回答。
 - **多轮追问**：可结合上文补全为完整问题后再检索。
+- **中英界面**：右上角切换语言，地址加 `?lang=en` 直接打开英文界面。
 - **内置评测**：检索指标、作答评测、分组统计与配对 bootstrap 置信区间均在仓库中。
-
-### 界面
-
-这题引用了三页：
-
-![中文提问，引用三页](img/demo-2-cited-pages.png)
-
-追问「会员费占总收入的比例大概是多少？」，系统结合上文补全问题后重新检索，并给出比例：
-
-![多轮追问](img/demo-3-followup.png)
 
 ## 工作原理
 
-```
-PDF ──渲染──> 页图（长边 2000 px）
-              ├─ 有文本层直接取；扫描页 / 乱码页走 PaddleOCR ──────────> 正文
-              └─ 视觉模型逐页描述图表照片 ────────────────────> "Visual content: ..."
-                                                │
-                      正文 + 视觉描述 ──────────┴──> Milvus（一行一页）
-                                                     ├ BM25 稀疏向量（Milvus 内置 Function 自动算）
-                                                     ├ 文本 dense 1024 维
-                                                     └ 图像 dense 1152 维
+**建索引**（离线，每页做成 Milvus 里的一行）
 
-问题 ──> 三路各取前 50 ──凸组合 (0.25 / 0.55 / 0.20)──> 前 30 ──重排──> 前 10
-                                                                    │
-                                                       前 4 页页图 ──┤
-                                                                    │
-                        ┌───────────────────────────────────────────┴──────────────┐
-                        ▼                                                          ▼
-                   一次作答                                    agent：search_pages / view_pages / answer
-                        │                                                          │
-                        └──────────────> 路由（10 个过程特征）<─────────────────────┘
-                                                │
-                                          采信其中一条
+```mermaid
+flowchart LR
+    pdf["PDF"] --> image["页图<br/>长边 2000 px"]
+    image --> text["正文<br/>文本层 / 扫描页走 OCR"]
+    image --> describe["视觉描述<br/>图、表、照片转写成文字"]
+    text --> merged["正文 + 视觉描述"]
+    describe --> merged
+    subgraph milvus["Milvus：一页一行"]
+        bm25["BM25 稀疏向量"]
+        textvec["文本向量 1024 维"]
+        imagevec["图像向量 1152 维"]
+    end
+    merged --> bm25
+    merged --> textvec
+    image --> imagevec
+```
+
+**回答一道题**（在线）
+
+```mermaid
+flowchart TD
+    question(["问题"]) --> retrieval
+    subgraph retrieval["检索"]
+        direction LR
+        recall["三路召回<br/>各取前 50"] --> convex["凸组合<br/>取前 30"] --> rerank["重排<br/>取前 10"]
+    end
+    retrieval --> top4["前 4 页页图"]
+    top4 --> routes
+    subgraph routes["两条路线并行"]
+        direction LR
+        oneshot["一次作答<br/>只看这 4 页"]
+        agent["agent<br/>可再搜索、按页号翻页<br/>最多 5 次调用、12 页"]
+        oneshot ~~~ agent
+    end
+    routes --> router{{"路由<br/>10 个作答过程特征"}}
+    router --> final(["最终答案 + 引用页"])
 ```
 
 **解析**：PDF 含文本层时按块直接提取并按阅读顺序拼接；文本层过短或乱码的页走 PaddleOCR。页图长边统一缩放到 2000 px，即不影响 OCR 识别结果，同时又降低 OCR 耗时与图像嵌入成本。
@@ -103,7 +112,6 @@ PDF ──渲染──> 页图（长边 2000 px）
 | 评测抽答案 | qwen3.7-plus | 判分流程中把自由文本答案抽成可比对的形式 |
 
 模型名与思考预算（`THINKING_BUDGET = 1024`，两条路线共用）集中在 `docrag/config.py`，追问改写与评测抽答案的两个常量位于各自模块顶部，更换模型改一行。各环节的选择均有对照实验支撑，见[方法选型](#方法选型)。
-
 
 ## 效果
 
@@ -209,7 +217,6 @@ PDF ──渲染──> 页图（长边 2000 px）
 | 不引入 LangChain / LlamaIndex | 框架的抽象层包裹了检索、提示词与 agent 循环，修改细节和排查问题都隔了一层；整条链路自行实现共 2200 行 |
 | 两条作答路线按题择一 | 单独使用 agent 总分打平（+0.012）；按作答过程特征路由后 +0.034\*，跨页增益保住 0.618、不可回答回到 0.700 |
 | 负结果同样记录 | 切块、更换嵌入模型、表格结构化、更大的 OCR 模型结果均不显著或更差 |
-
 
 ## 运行
 
