@@ -67,22 +67,20 @@ flowchart LR
 **回答一道题**（在线）
 
 ```mermaid
-flowchart TD
-    question(["问题"]) --> retrieval
+flowchart LR
     subgraph retrieval["检索"]
-        direction LR
+        direction TB
         recall["三路召回<br/>各取前 50"] --> convex["凸组合<br/>取前 30"] --> rerank["重排<br/>取前 10"]
     end
-    retrieval --> top4["前 4 页页图"]
-    top4 --> routes
-    subgraph routes["两条路线并行"]
-        direction LR
+    retrieval --> routes
+    subgraph routes["前 4 页页图，两条路线并行"]
+        direction TB
         oneshot["一次作答<br/>只看这 4 页"]
-        agent["agent<br/>可再搜索、按页号翻页<br/>最多 5 次调用、12 页"]
+        agent["agent<br/>可再搜索、翻页<br/>≤ 5 次调用 / 12 页"]
         oneshot ~~~ agent
     end
-    routes --> router{{"路由<br/>10 个作答过程特征"}}
-    router --> final(["最终答案 + 引用页"])
+    routes --> router{{"路由<br/>10 个过程特征"}}
+    router --> final(["答案 +<br/>引用页"])
 ```
 
 **解析**：PDF 含文本层时按块直接提取并按阅读顺序拼接；文本层过短或乱码的页走 PaddleOCR。页图长边统一缩放到 2000 px，即不影响 OCR 识别结果，同时又降低 OCR 耗时与图像嵌入成本。

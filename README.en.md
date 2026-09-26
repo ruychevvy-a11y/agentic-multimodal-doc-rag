@@ -67,22 +67,20 @@ flowchart LR
 **Answering a question** (online)
 
 ```mermaid
-flowchart TD
-    question(["Question"]) --> retrieval
+flowchart LR
     subgraph retrieval["Retrieval"]
-        direction LR
-        recall["Three routes<br/>top 50 each"] --> convex["Convex combination<br/>top 30"] --> rerank["Reranking<br/>top 10"]
+        direction TB
+        recall["3 routes<br/>top 50 each"] --> convex["Convex<br/>combination<br/>top 30"] --> rerank["Rerank<br/>top 10"]
     end
-    retrieval --> top4["Top 4 page images"]
-    top4 --> routes
-    subgraph routes["Two routes in parallel"]
-        direction LR
-        oneshot["One-shot answer<br/>reads these 4 pages"]
-        agent["Agent<br/>searches, turns pages<br/>max 5 calls / 12 pages"]
+    retrieval --> routes
+    subgraph routes["Top 4 pages, two routes"]
+        direction TB
+        oneshot["One-shot<br/>reads the 4 pages"]
+        agent["Agent<br/>searches, turns pages<br/>≤ 5 calls / 12 pages"]
         oneshot ~~~ agent
     end
     routes --> router{{"Router<br/>10 process features"}}
-    router --> final(["Final answer + cited pages"])
+    router --> final(["Answer +<br/>cited pages"])
 ```
 
 **Parsing**: pages with a PDF text layer are extracted block by block in reading order; pages whose text layer is too short or garbled go through PaddleOCR. Page images are scaled to a 2000 px long side, which leaves OCR output unchanged while cutting OCR time and image-embedding cost.
