@@ -1,6 +1,9 @@
 # Agent Design
 
-[简体中文](agent_design.md) | **English**
+<p>
+  <a href="./agent_design.md"><img alt="简体中文" src="https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-DFE0E5"></a>
+  <a href="./agent_design.en.md"><img alt="English" src="https://img.shields.io/badge/English-DBEDFA"></a>
+</p>
 
 On top of the baseline "retrieve --> view the top 4 page images --> answer once", the model gets three tools so that, when evidence is missing, it can search again and turn pages on its own before giving an answer with cited pages.
 

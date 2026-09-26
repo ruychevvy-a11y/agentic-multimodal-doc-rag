@@ -1,6 +1,9 @@
 # 混合多模态文档 RAG
 
-**简体中文** | [English](README.en.md)
+<p>
+  <a href="./README.md"><img alt="简体中文" src="https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-DBEDFA"></a>
+  <a href="./README.en.md"><img alt="English" src="https://img.shields.io/badge/English-DFE0E5"></a>
+</p>
 
 > 面向长 PDF 的文档问答：每一页同时作为**文本**和**图像**建立索引，由视觉模型依据页图作答；每道题同时走**一次作答**和 **agent** 两条路线，再由一个轻量分类器按作答过程择一。
 
@@ -68,6 +71,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
+    question(["问题"]) --> retrieval
     subgraph retrieval["检索"]
         direction TB
         recall["三路召回<br/>各取前 50"] --> convex["凸组合<br/>取前 30"] --> rerank["重排<br/>取前 10"]

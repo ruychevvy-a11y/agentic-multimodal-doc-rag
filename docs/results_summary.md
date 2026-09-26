@@ -1,6 +1,9 @@
 # 结果总表
 
-**简体中文** | [English](results_summary.en.md)
+<p>
+  <a href="./results_summary.md"><img alt="简体中文" src="https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-DBEDFA"></a>
+  <a href="./results_summary.en.md"><img alt="English" src="https://img.shields.io/badge/English-DFE0E5"></a>
+</p>
 
 README 中的数字均出自此处，原始结果在 `evaluations/<数据集>/<closed|open>/results_*.json`。所有对比都在同一批题上做配对 bootstrap 95% 置信区间，**\* 表示区间不跨 0**。
 

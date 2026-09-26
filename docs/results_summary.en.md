@@ -1,6 +1,9 @@
 # Results Summary
 
-[简体中文](results_summary.md) | **English**
+<p>
+  <a href="./results_summary.md"><img alt="简体中文" src="https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-DFE0E5"></a>
+  <a href="./results_summary.en.md"><img alt="English" src="https://img.shields.io/badge/English-DBEDFA"></a>
+</p>
 
 Every number in the README comes from here; raw results are in `evaluations/<dataset>/<closed|open>/results_*.json`. All comparisons are paired bootstrap 95% confidence intervals over the same questions; **\* means the interval excludes 0**.
 

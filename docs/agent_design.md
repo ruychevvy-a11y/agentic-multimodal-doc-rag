@@ -1,6 +1,9 @@
 # Agent 设计
 
-**简体中文** | [English](agent_design.en.md)
+<p>
+  <a href="./agent_design.md"><img alt="简体中文" src="https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-DBEDFA"></a>
+  <a href="./agent_design.en.md"><img alt="English" src="https://img.shields.io/badge/English-DFE0E5"></a>
+</p>
 
 在「检索 → 查看前 4 页页图 → 一次作答」的基线之上，为模型提供三个工具，使其在证据不足时自行补充检索与翻页，并最终给出答案与引用页。
 

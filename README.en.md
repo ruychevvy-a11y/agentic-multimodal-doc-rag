@@ -1,6 +1,9 @@
 # Hybrid Multimodal Document RAG
 
-[简体中文](README.md) | **English**
+<p>
+  <a href="./README.md"><img alt="简体中文" src="https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-DFE0E5"></a>
+  <a href="./README.en.md"><img alt="English" src="https://img.shields.io/badge/English-DBEDFA"></a>
+</p>
 
 > Question answering over long PDFs: every page is indexed both as **text** and as an **image**, and a vision model answers from the page images. Each question runs through two answer routes — **one-shot answering** and an **agent** — and a lightweight classifier picks one of them based on how each answer was produced.
 
@@ -68,6 +71,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
+    question(["Question"]) --> retrieval
     subgraph retrieval["Retrieval"]
         direction TB
         recall["3 routes<br/>top 50 each"] --> convex["Convex<br/>combination<br/>top 30"] --> rerank["Rerank<br/>top 10"]
