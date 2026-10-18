@@ -1,0 +1,545 @@
+{
+  "scope": "closed",
+  "num_queries": 845,
+  "chunk_counts": {
+    "page": 6522,
+    "fixed": 18278,
+    "structure": 22409
+  },
+  "length_cuts_chars": [
+    1845,
+    3127
+  ],
+  "text_dense": {
+    "variants": {
+      "page": {
+        "r@1": 0.4192,
+        "r@10": 0.8037,
+        "cov@4": 0.5692,
+        "cov@30": 0.9231,
+        "cov@50": 0.968,
+        "mrr": 0.6651,
+        "r@1_short_medium_long": [
+          0.4856,
+          0.4365,
+          0.3354
+        ]
+      },
+      "fixed": {
+        "r@1": 0.4519,
+        "r@10": 0.8338,
+        "cov@4": 0.6012,
+        "cov@30": 0.9325,
+        "cov@50": 0.9728,
+        "mrr": 0.7048,
+        "r@1_short_medium_long": [
+          0.4874,
+          0.4595,
+          0.4089
+        ]
+      },
+      "structure": {
+        "r@1": 0.4572,
+        "r@10": 0.8488,
+        "cov@4": 0.6083,
+        "cov@30": 0.929,
+        "cov@50": 0.9704,
+        "mrr": 0.7076,
+        "r@1_short_medium_long": [
+          0.4737,
+          0.4679,
+          0.4301
+        ]
+      }
+    },
+    "vs_page": {
+      "fixed": {
+        "r@1": {
+          "delta": 0.0327,
+          "ci": [
+            0.0108,
+            0.0548
+          ],
+          "significant": true,
+          "won": 89,
+          "lost": 50
+        },
+        "mrr": {
+          "delta": 0.0397,
+          "ci": [
+            0.0213,
+            0.0586
+          ],
+          "significant": true,
+          "won": 6,
+          "lost": 3
+        },
+        "cov@30": {
+          "delta": 0.0095,
+          "ci": [
+            0.0,
+            0.0201
+          ],
+          "significant": false,
+          "won": 14,
+          "lost": 6
+        },
+        "r@1_by_length": {
+          "短": {
+            "delta": 0.0018,
+            "ci": [
+              -0.0278,
+              0.0301
+            ],
+            "significant": false,
+            "won": 12,
+            "lost": 12
+          },
+          "中": {
+            "delta": 0.023,
+            "ci": [
+              -0.0153,
+              0.0606
+            ],
+            "significant": false,
+            "won": 29,
+            "lost": 19
+          },
+          "长": {
+            "delta": 0.0734,
+            "ci": [
+              0.0296,
+              0.1177
+            ],
+            "significant": true,
+            "won": 48,
+            "lost": 19
+          }
+        }
+      },
+      "structure": {
+        "r@1": {
+          "delta": 0.0381,
+          "ci": [
+            0.0146,
+            0.0621
+          ],
+          "significant": true,
+          "won": 100,
+          "lost": 63
+        },
+        "mrr": {
+          "delta": 0.0425,
+          "ci": [
+            0.0224,
+            0.0629
+          ],
+          "significant": true,
+          "won": 5,
+          "lost": 5
+        },
+        "cov@30": {
+          "delta": 0.0059,
+          "ci": [
+            -0.0071,
+            0.0189
+          ],
+          "significant": false,
+          "won": 19,
+          "lost": 14
+        },
+        "r@1_by_length": {
+          "短": {
+            "delta": -0.012,
+            "ci": [
+              -0.0434,
+              0.0195
+            ],
+            "significant": false,
+            "won": 13,
+            "lost": 19
+          },
+          "中": {
+            "delta": 0.0315,
+            "ci": [
+              -0.0101,
+              0.0723
+            ],
+            "significant": false,
+            "won": 30,
+            "lost": 19
+          },
+          "长": {
+            "delta": 0.0947,
+            "ci": [
+              0.0476,
+              0.1436
+            ],
+            "significant": true,
+            "won": 57,
+            "lost": 25
+          }
+        }
+      }
+    }
+  },
+  "convex_current_weights": {
+    "variants": {
+      "page": {
+        "r@1": 0.4647,
+        "r@10": 0.8468,
+        "cov@4": 0.632,
+        "cov@30": 0.9467,
+        "cov@50": 0.9763,
+        "mrr": 0.7158,
+        "r@1_short_medium_long": [
+          0.5353,
+          0.4789,
+          0.3799
+        ]
+      },
+      "fixed": {
+        "r@1": 0.4889,
+        "r@10": 0.8625,
+        "cov@4": 0.6485,
+        "cov@30": 0.9396,
+        "cov@50": 0.9751,
+        "mrr": 0.7432,
+        "r@1_short_medium_long": [
+          0.5276,
+          0.4987,
+          0.4405
+        ]
+      },
+      "structure": {
+        "r@1": 0.4884,
+        "r@10": 0.8684,
+        "cov@4": 0.6521,
+        "cov@30": 0.9385,
+        "cov@50": 0.9716,
+        "mrr": 0.7426,
+        "r@1_short_medium_long": [
+          0.5231,
+          0.4853,
+          0.4568
+        ]
+      }
+    },
+    "vs_page": {
+      "fixed": {
+        "r@1": {
+          "delta": 0.0242,
+          "ci": [
+            0.0045,
+            0.0437
+          ],
+          "significant": true,
+          "won": 68,
+          "lost": 40
+        },
+        "mrr": {
+          "delta": 0.0274,
+          "ci": [
+            0.0117,
+            0.043
+          ],
+          "significant": true,
+          "won": 1,
+          "lost": 1
+        },
+        "cov@30": {
+          "delta": -0.0071,
+          "ci": [
+            -0.0142,
+            0.0
+          ],
+          "significant": false,
+          "won": 2,
+          "lost": 8
+        },
+        "r@1_by_length": {
+          "短": {
+            "delta": -0.0077,
+            "ci": [
+              -0.0337,
+              0.0167
+            ],
+            "significant": false,
+            "won": 8,
+            "lost": 12
+          },
+          "中": {
+            "delta": 0.0198,
+            "ci": [
+              -0.0167,
+              0.0562
+            ],
+            "significant": false,
+            "won": 23,
+            "lost": 17
+          },
+          "长": {
+            "delta": 0.0606,
+            "ci": [
+              0.0229,
+              0.1003
+            ],
+            "significant": true,
+            "won": 37,
+            "lost": 11
+          }
+        }
+      },
+      "structure": {
+        "r@1": {
+          "delta": 0.0237,
+          "ci": [
+            0.0043,
+            0.0436
+          ],
+          "significant": true,
+          "won": 72,
+          "lost": 49
+        },
+        "mrr": {
+          "delta": 0.0268,
+          "ci": [
+            0.0108,
+            0.0434
+          ],
+          "significant": true,
+          "won": 2,
+          "lost": 4
+        },
+        "cov@30": {
+          "delta": -0.0083,
+          "ci": [
+            -0.0189,
+            0.0024
+          ],
+          "significant": false,
+          "won": 7,
+          "lost": 14
+        },
+        "r@1_by_length": {
+          "短": {
+            "delta": -0.0122,
+            "ci": [
+              -0.039,
+              0.0141
+            ],
+            "significant": false,
+            "won": 9,
+            "lost": 19
+          },
+          "中": {
+            "delta": 0.0064,
+            "ci": [
+              -0.0268,
+              0.0384
+            ],
+            "significant": false,
+            "won": 19,
+            "lost": 16
+          },
+          "长": {
+            "delta": 0.0769,
+            "ci": [
+              0.0368,
+              0.1188
+            ],
+            "significant": true,
+            "won": 44,
+            "lost": 14
+          }
+        }
+      }
+    }
+  },
+  "convex_cv_weights": {
+    "variants": {
+      "page": {
+        "r@1": 0.4638,
+        "r@10": 0.8479,
+        "cov@4": 0.6343,
+        "cov@30": 0.9361,
+        "cov@50": 0.9751,
+        "mrr": 0.7124,
+        "r@1_short_medium_long": [
+          0.5044,
+          0.4744,
+          0.4126
+        ]
+      },
+      "fixed": {
+        "r@1": 0.4927,
+        "r@10": 0.8602,
+        "cov@4": 0.6438,
+        "cov@30": 0.9385,
+        "cov@50": 0.9728,
+        "mrr": 0.744,
+        "r@1_short_medium_long": [
+          0.5247,
+          0.4981,
+          0.4554
+        ]
+      },
+      "structure": {
+        "r@1": 0.4975,
+        "r@10": 0.866,
+        "cov@4": 0.6473,
+        "cov@30": 0.9361,
+        "cov@50": 0.9692,
+        "mrr": 0.7455,
+        "r@1_short_medium_long": [
+          0.5268,
+          0.494,
+          0.4717
+        ]
+      }
+    },
+    "vs_page": {
+      "fixed": {
+        "r@1": {
+          "delta": 0.0289,
+          "ci": [
+            0.0096,
+            0.0482
+          ],
+          "significant": true,
+          "won": 70,
+          "lost": 32
+        },
+        "mrr": {
+          "delta": 0.0316,
+          "ci": [
+            0.0173,
+            0.0457
+          ],
+          "significant": true,
+          "won": 0,
+          "lost": 3
+        },
+        "cov@30": {
+          "delta": 0.0024,
+          "ci": [
+            -0.0071,
+            0.0118
+          ],
+          "significant": false,
+          "won": 9,
+          "lost": 7
+        },
+        "r@1_by_length": {
+          "短": {
+            "delta": 0.0203,
+            "ci": [
+              -0.0032,
+              0.0436
+            ],
+            "significant": false,
+            "won": 11,
+            "lost": 5
+          },
+          "中": {
+            "delta": 0.0237,
+            "ci": [
+              -0.0095,
+              0.0572
+            ],
+            "significant": false,
+            "won": 20,
+            "lost": 11
+          },
+          "长": {
+            "delta": 0.0428,
+            "ci": [
+              0.0025,
+              0.0843
+            ],
+            "significant": true,
+            "won": 39,
+            "lost": 16
+          }
+        }
+      },
+      "structure": {
+        "r@1": {
+          "delta": 0.0337,
+          "ci": [
+            0.0158,
+            0.0514
+          ],
+          "significant": true,
+          "won": 69,
+          "lost": 30
+        },
+        "mrr": {
+          "delta": 0.0331,
+          "ci": [
+            0.0185,
+            0.0475
+          ],
+          "significant": true,
+          "won": 0,
+          "lost": 3
+        },
+        "cov@30": {
+          "delta": 0.0,
+          "ci": [
+            -0.0107,
+            0.0107
+          ],
+          "significant": false,
+          "won": 10,
+          "lost": 10
+        },
+        "r@1_by_length": {
+          "短": {
+            "delta": 0.0224,
+            "ci": [
+              0.0015,
+              0.0452
+            ],
+            "significant": true,
+            "won": 14,
+            "lost": 7
+          },
+          "中": {
+            "delta": 0.0197,
+            "ci": [
+              -0.0077,
+              0.0474
+            ],
+            "significant": false,
+            "won": 17,
+            "lost": 9
+          },
+          "长": {
+            "delta": 0.0591,
+            "ci": [
+              0.0195,
+              0.0999
+            ],
+            "significant": true,
+            "won": 38,
+            "lost": 14
+          }
+        }
+      }
+    }
+  },
+  "rerank_candidates": {
+    "documents_within_depth": 444,
+    "fixed": {
+      "mean_overlap": 0.9428,
+      "identical": 0.568,
+      "coverage_changed": 10
+    },
+    "structure": {
+      "mean_overlap": 0.9383,
+      "identical": 0.5479,
+      "coverage_changed": 21
+    }
+  }
+}

@@ -157,19 +157,19 @@ flowchart LR
 
 ## 方法选型
 
-每项选择都有对照实验支撑，完整数字见 [docs/results_summary.md](docs/results_summary.md)。
+每项选择都在 MMLongBench-Doc 上做过对照，带参数的用 2 折交叉验证，完整数字见 [docs/results_summary.md](docs/results_summary.md)。
 
 | 决策 | 依据 |
 |---|---|
-| 融合用凸组合，不用 RRF | MP-DocVQA 500 题 r@1：凸组合 0.486 > BM25 0.458 > RRF 0.420 |
-| 加 cross-encoder 重排 | 比凸组合 r@1 +0.132\*；候选取前 30 与前 50 打平 |
+| 融合用凸组合，不用 RRF | r@1：凸组合 0.464 > 调过 k 的 RRF 0.448 > BM25 0.433 > 标准 RRF 0.404；比标准 RRF 高 0.060\* |
+| 加 cross-encoder 重排 | 比凸组合 r@1 +0.116\*；候选取前 30 与前 50 打平 |
 | 保留图像路 | 加入视觉描述后移除图像路，前 30 候选含全部金标下降 0.009\* |
-| 每页不切块 | 证据以整页为单位，切块会打散表格与图注 |
+| 每页不切块 | 切块让融合后 r@1 +0.024\*，长页最明显；但交给重排的前 30 页含全部金标不变，重排读的是整页正文 |
 | 作答给 4 页 | 给 6 页总分 +0.015，不显著，且不可回答题变差 |
 | 思考预算 1024 token | 200 题上与默认思考打平，p90 由 68 s 降至 15.6 s |
 | 不引入 LangChain / LlamaIndex | 检索、提示词与 agent 循环自行实现，便于修改和排查；全链路约 2200 行 |
 | 两条作答路线按题择一 | 单用 agent 总分仅 +0.012，路由后 +0.034\* |
-| 负结果同样记录 | 切块、更换嵌入模型、表格结构化、更大的 OCR 模型均不显著或更差 |
+| 负结果同样记录 | 更大的 OCR 模型更差；计算器工具和修不可回答题的几种做法均未奏效 |
 
 ## 运行
 
@@ -222,5 +222,4 @@ evaluations/             评测结果
 - 评测数据集 [MMLongBench-Doc](https://huggingface.co/datasets/yubo2333/MMLongBench-Doc)，作答判分沿用该数据集自带的抽答案与判分代码（`docrag/generation/mmlongbench_official/`）。
   - **本仓库使用的快照**：2026-09-14 下载，`data/train-00000-of-00001.parquet` 提交 `2ff6aa92`，共 **1082 题 / 135 份 PDF / 6522 页**。其中不可回答题 223 道，可用于检索评测的 845 道。
   - 该数据集的题数随仓库更新而变动（撰写时 Hugging Face 显示 1.09k 行）。**本文分数均基于上述快照和自带的字符串判分代码，不能直接与其他快照或其他判分方式下的公开分数比较。**
-- 方法选型阶段的对照数据集 [MP-DocVQA](https://huggingface.co/datasets/lmms-lab/MP-DocVQA)。
 - 嵌入、重排、视觉作答使用阿里云[通义百炼](https://bailian.console.aliyun.com/)；向量库 [Milvus](https://milvus.io/)；OCR 使用 [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)。

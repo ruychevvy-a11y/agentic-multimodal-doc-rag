@@ -1,0 +1,48 @@
+{
+  "scope": "closed（HNSW 一项为开域）",
+  "num_queries": 845,
+  "top1_quadrants": {
+    "both": 367,
+    "bm25_only": 107,
+    "dense_only": 104,
+    "neither": 267
+  },
+  "digits": {
+    "with_digit": {
+      "n": 388,
+      "bm25_r@1": 0.4061,
+      "dense_r@1": 0.396
+    },
+    "without_digit": {
+      "n": 457,
+      "bm25_r@1": 0.456,
+      "dense_r@1": 0.4388
+    }
+  },
+  "by_gold_page_length": {
+    "bm25_r@1_short_medium_long": [
+      0.4677,
+      0.4213,
+      0.4101
+    ],
+    "dense_r@1_short_medium_long": [
+      0.4856,
+      0.4365,
+      0.3354
+    ]
+  },
+  "open_domain_text_dense_hnsw": {
+    "default": {
+      "overlap_with_exact@10": 0.9249,
+      "r@1": 0.3498
+    },
+    "ef=256": {
+      "overlap_with_exact@10": 0.9999,
+      "r@1": 0.3561
+    },
+    "exact": {
+      "overlap_with_exact@10": 1.0,
+      "r@1": 0.3561
+    }
+  }
+}

@@ -1,5 +1,3 @@
-from pymilvus import RRFRanker
-
 from docrag import config
 from docrag.indexing import milvus_client
 from docrag.retrieval.dense import image_dense_retrieval, text_dense_retrieval
@@ -13,27 +11,6 @@ def minmax(scores):
     low, high = min(scores.values()), max(scores.values())
     span = high - low
     return {page_id: (score - low) / span if span else 1.0 for page_id, score in scores.items()}
-
-
-# 各路按名次投票，由 Milvus hybrid_search 一次算完
-class RRFRetrieval:
-    def __init__(self, retrievals):
-        self.client = milvus_client()
-        self.retrievals = retrievals
-        self.ranker = RRFRanker(config.RRF_K)
-
-    # 融合检索 --> 前 RETRIEVE_K 个 page_id
-    def retrieve(self, question, search_filter):
-        res = self.client.hybrid_search(
-            collection_name=config.PAGE_COLLECTION,
-            reqs=[
-                retrieval.search_request(question, config.FUSION_DEPTH, search_filter)
-                for retrieval in self.retrievals
-            ],
-            ranker=self.ranker,
-            limit=config.RETRIEVE_K,
-        )
-        return [hit["page_id"] for hit in res[0]]
 
 
 # 各路原始分数各自 min-max 后按权重相加，没被某路召回按 0 分
@@ -70,17 +47,6 @@ class ConvexRetrieval:
     # 融合检索 --> 前 RETRIEVE_K 个 page_id
     def retrieve(self, question, search_filter):
         return self.candidates(question, config.RETRIEVE_K, search_filter)
-
-
-# BM25 + 文本 dense 等权 RRF（MP-DocVQA 基线）
-def rrf_bm25_text_retrieval(questions):
-    return RRFRetrieval([text_bm25_retrieval(questions), text_dense_retrieval(questions)])
-
-
-# BM25 + 文本 dense 凸组合；先取权重，没选过权重就在嵌入问题之前报错
-def convex_bm25_text_retrieval(questions):
-    weights = config.CONVEX_WEIGHTS["convex_bm25_text"]
-    return ConvexRetrieval([text_bm25_retrieval(questions), text_dense_retrieval(questions)], weights)
 
 
 # BM25 + 文本 dense + 图像 dense 凸组合

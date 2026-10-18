@@ -1,0 +1,58 @@
+{
+  "scope": "closed",
+  "num_queries": 845,
+  "convex": {
+    "r@1": 0.4647,
+    "r@10": 0.8468,
+    "cov@4": 0.632,
+    "mrr": 0.7114
+  },
+  "rerank": {
+    "r@1": 0.5809,
+    "r@10": 0.8975,
+    "cov@4": 0.7314,
+    "mrr": 0.8261
+  },
+  "rerank vs convex": {
+    "r@1": {
+      "delta": 0.1162,
+      "ci": [
+        0.09,
+        0.1427
+      ],
+      "significant": true,
+      "won": 170,
+      "lost": 50
+    },
+    "r@10": {
+      "delta": 0.0507,
+      "ci": [
+        0.0323,
+        0.0688
+      ],
+      "significant": true,
+      "won": 45,
+      "lost": 15
+    },
+    "cov@4": {
+      "delta": 0.0994,
+      "ci": [
+        0.0734,
+        0.1254
+      ],
+      "significant": true,
+      "won": 109,
+      "lost": 25
+    },
+    "mrr": {
+      "delta": 0.1146,
+      "ci": [
+        0.0913,
+        0.1374
+      ],
+      "significant": true,
+      "won": 45,
+      "lost": 15
+    }
+  }
+}

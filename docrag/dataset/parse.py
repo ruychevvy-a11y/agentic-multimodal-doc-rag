@@ -71,22 +71,16 @@ def parse_corpus():
     )
     rows = load_jsonl(config.PAGES_PATH)
 
-    if config.DATASET_SOURCE == "pdf":
-        # 同一份 PDF 的页在 pages.jsonl 里连着：按文档分组，一份 PDF 只打开一次
-        parsed = 0
-        for doc_id, doc_rows in groupby(rows, key=itemgetter("doc_id")):
-            with pymupdf.open(
-                os.path.join(config.PDF_DIR, f"{doc_id}.pdf")
-            ) as document:
-                for row in doc_rows:
-                    row.update(parse_pdf_page(row, document, ocr))
-                    parsed += 1
-            print(f"{parsed}/{len(rows)} parse {doc_id}")
-    else:
-        for i, row in enumerate(rows, 1):
-            row.update(parse_scanned_page(ocr, row["image_path"]))
-            if i % 25 == 0:
-                print(f"{i}/{len(rows)} parse")
+    # 同一份 PDF 的页在 pages.jsonl 里连着：按文档分组，一份 PDF 只打开一次
+    parsed = 0
+    for doc_id, doc_rows in groupby(rows, key=itemgetter("doc_id")):
+        with pymupdf.open(
+            os.path.join(config.PDF_DIR, f"{doc_id}.pdf")
+        ) as document:
+            for row in doc_rows:
+                row.update(parse_pdf_page(row, document, ocr))
+                parsed += 1
+        print(f"{parsed}/{len(rows)} parse {doc_id}")
 
     write_jsonl(config.CORPUS_PATH, rows)
     print("done -->", config.CORPUS_PATH, dict(Counter(row["source"] for row in rows)))

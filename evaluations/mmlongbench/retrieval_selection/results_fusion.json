@@ -1,0 +1,271 @@
+{
+  "scope": "closed",
+  "num_queries": 845,
+  "fusion_depth": 50,
+  "methods": {
+    "bm25": {
+      "r@1": 0.4331,
+      "r@10": 0.8092,
+      "cov@4": 0.6036,
+      "cov@30": 0.8911,
+      "cov@50": 0.9207,
+      "mrr": 0.6759
+    },
+    "text_dense": {
+      "r@1": 0.4192,
+      "r@10": 0.8037,
+      "cov@4": 0.5692,
+      "cov@30": 0.9231,
+      "cov@50": 0.968,
+      "mrr": 0.6651
+    },
+    "image_dense": {
+      "r@1": 0.2576,
+      "r@10": 0.6951,
+      "cov@4": 0.4083,
+      "cov@30": 0.8828,
+      "cov@50": 0.942,
+      "mrr": 0.4886
+    },
+    "rrf_k60_bm25_text": {
+      "r@1": 0.4403,
+      "r@10": 0.8347,
+      "cov@4": 0.6024,
+      "cov@30": 0.9207,
+      "cov@50": 0.9728,
+      "mrr": 0.6898
+    },
+    "rrf_k60": {
+      "r@1": 0.4035,
+      "r@10": 0.8284,
+      "cov@4": 0.5905,
+      "cov@30": 0.9314,
+      "cov@50": 0.9704,
+      "mrr": 0.6612
+    },
+    "rrf_cv_k": {
+      "r@1": 0.4475,
+      "r@10": 0.8487,
+      "cov@4": 0.6178,
+      "cov@30": 0.9408,
+      "cov@50": 0.9728,
+      "mrr": 0.7081
+    },
+    "weighted_rrf_cv": {
+      "r@1": 0.4482,
+      "r@10": 0.8523,
+      "cov@4": 0.632,
+      "cov@30": 0.9349,
+      "cov@50": 0.9728,
+      "mrr": 0.7047
+    },
+    "convex_bm25_text_cv": {
+      "r@1": 0.459,
+      "r@10": 0.8389,
+      "cov@4": 0.6201,
+      "cov@30": 0.9361,
+      "cov@50": 0.974,
+      "mrr": 0.7062
+    },
+    "convex_cv": {
+      "r@1": 0.4638,
+      "r@10": 0.8479,
+      "cov@4": 0.6343,
+      "cov@30": 0.9361,
+      "cov@50": 0.9751,
+      "mrr": 0.7124
+    },
+    "convex_current": {
+      "r@1": 0.4647,
+      "r@10": 0.8468,
+      "cov@4": 0.632,
+      "cov@30": 0.9467,
+      "cov@50": 0.9763,
+      "mrr": 0.7158
+    }
+  },
+  "chosen_params": {
+    "rrf_cv_k": [
+      1,
+      1
+    ],
+    "weighted_rrf_cv": [
+      [
+        1,
+        [
+          0.4,
+          0.45,
+          0.15
+        ]
+      ],
+      [
+        2,
+        [
+          0.55,
+          0.25,
+          0.2
+        ]
+      ]
+    ],
+    "convex_bm25_text_cv": [
+      [
+        0.65,
+        0.35,
+        0.0
+      ],
+      [
+        0.35,
+        0.65,
+        0.0
+      ]
+    ],
+    "convex_cv": [
+      [
+        0.65,
+        0.3,
+        0.05
+      ],
+      [
+        0.35,
+        0.55,
+        0.1
+      ]
+    ]
+  },
+  "r@1_comparisons": {
+    "rrf_k60 vs bm25": {
+      "delta": -0.0295,
+      "ci": [
+        -0.0567,
+        -0.0039
+      ],
+      "significant": true,
+      "won": 90,
+      "lost": 111
+    },
+    "rrf_cv_k vs bm25": {
+      "delta": 0.0145,
+      "ci": [
+        -0.0076,
+        0.0362
+      ],
+      "significant": false,
+      "won": 81,
+      "lost": 54
+    },
+    "weighted_rrf_cv vs bm25": {
+      "delta": 0.0151,
+      "ci": [
+        -0.0027,
+        0.0326
+      ],
+      "significant": false,
+      "won": 59,
+      "lost": 37
+    },
+    "convex_cv vs bm25": {
+      "delta": 0.0307,
+      "ci": [
+        0.0116,
+        0.0504
+      ],
+      "significant": true,
+      "won": 73,
+      "lost": 39
+    },
+    "convex_current vs bm25": {
+      "delta": 0.0316,
+      "ci": [
+        0.0066,
+        0.0567
+      ],
+      "significant": true,
+      "won": 115,
+      "lost": 71
+    },
+    "convex_cv vs rrf_k60": {
+      "delta": 0.0602,
+      "ci": [
+        0.0363,
+        0.0849
+      ],
+      "significant": true,
+      "won": 111,
+      "lost": 56
+    },
+    "convex_cv vs rrf_cv_k": {
+      "delta": 0.0162,
+      "ci": [
+        -0.0037,
+        0.0364
+      ],
+      "significant": false,
+      "won": 61,
+      "lost": 54
+    },
+    "convex_cv vs weighted_rrf_cv": {
+      "delta": 0.0156,
+      "ci": [
+        -0.0044,
+        0.0366
+      ],
+      "significant": false,
+      "won": 69,
+      "lost": 57
+    },
+    "convex_cv vs convex_bm25_text_cv": {
+      "delta": 0.0048,
+      "ci": [
+        -0.0032,
+        0.0134
+      ],
+      "significant": false,
+      "won": 13,
+      "lost": 8
+    },
+    "convex_current vs convex_cv": {
+      "delta": 0.0009,
+      "ci": [
+        -0.018,
+        0.0187
+      ],
+      "significant": false,
+      "won": 53,
+      "lost": 43
+    }
+  },
+  "rerank_depth": {
+    "cov@30": 0.9467,
+    "cov@50": 0.9763,
+    "cov@50 vs cov@30": {
+      "delta": 0.0296,
+      "ci": [
+        0.0189,
+        0.0414
+      ],
+      "significant": true,
+      "won": 25,
+      "lost": 0
+    },
+    "convex_current vs rrf_k60 (cov@30)": {
+      "delta": 0.0154,
+      "ci": [
+        0.0024,
+        0.0284
+      ],
+      "significant": true,
+      "won": 22,
+      "lost": 9
+    },
+    "convex_current vs rrf_cv_k (cov@30)": {
+      "delta": 0.0059,
+      "ci": [
+        -0.0036,
+        0.0154
+      ],
+      "significant": false,
+      "won": 11,
+      "lost": 6
+    }
+  }
+}

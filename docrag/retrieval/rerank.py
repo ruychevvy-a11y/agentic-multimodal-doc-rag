@@ -3,7 +3,7 @@ from dashscope import TextReRank
 from docrag import config
 from docrag.embeddings import call_with_retry
 from docrag.indexing import milvus_client
-from docrag.retrieval.fusion import convex_bm25_text_image_retrieval, convex_bm25_text_retrieval
+from docrag.retrieval.fusion import convex_bm25_text_image_retrieval
 
 
 # 重排模型给每页正文打相关分 --> 与 texts 同序的分数；空正文不送接口（接口不接受），分数记 0
@@ -46,11 +46,6 @@ class RerankRetrieval:
         scores = rerank_scores(question, [texts[page_id] for page_id in candidates])
         ranked = sorted(zip(candidates, scores), key=lambda pair: pair[1], reverse=True)
         return [page_id for page_id, score in ranked[: config.RETRIEVE_K]]
-
-
-# 两路凸组合出候选再重排
-def rerank_convex_bm25_text_retrieval(questions):
-    return RerankRetrieval(convex_bm25_text_retrieval(questions))
 
 
 # 三路凸组合出候选再重排

@@ -157,19 +157,19 @@ With both routes in parallel, latency is that of the slower one; run sequentiall
 
 ## Design decisions
 
-Each choice rests on a controlled comparison; full numbers are in [docs/results_summary.en.md](docs/results_summary.en.md).
+Each choice rests on a controlled comparison on MMLongBench-Doc, with 2-fold cross-validation wherever there are parameters; full numbers are in [docs/results_summary.en.md](docs/results_summary.en.md).
 
 | Decision | Evidence |
 |---|---|
-| Fuse by convex combination, not RRF | MP-DocVQA, 500 questions, r@1: convex 0.486 > BM25 0.458 > RRF 0.420 |
-| Add a cross-encoder reranker | r@1 +0.132\* over the convex combination; top 30 and top 50 candidates tie |
+| Fuse by convex combination, not RRF | r@1: convex 0.464 > RRF with tuned k 0.448 > BM25 0.433 > standard RRF 0.404; +0.060\* over standard RRF |
+| Add a cross-encoder reranker | r@1 +0.116\* over the convex combination; top 30 and top 50 candidates tie |
 | Keep the image route | With visual descriptions in place, removing it lowers "all gold pages in top 30" by 0.009\* |
-| No chunking within a page | Evidence is page-level; chunking splits tables from their captions |
+| No chunking within a page | Chunking lifts fused r@1 by 0.024\*, mostly on long pages, but leaves "all gold pages in the top 30 sent to the reranker" unchanged, and the reranker reads whole pages |
 | Answer from 4 pages | 6 pages give +0.015 overall, not significant, and make unanswerable questions worse |
 | 1024-token thinking budget | Ties default thinking on 200 questions while p90 drops from 68 s to 15.6 s |
 | No LangChain / LlamaIndex | Retrieval, prompts and the agent loop are written from scratch for easier changes and debugging; about 2200 lines in total |
 | Pick one of two answer routes per question | The agent alone gives only +0.012; routing gives +0.034\* |
-| Record negative results too | Chunking, a different embedding model, structured tables and a larger OCR model were all insignificant or worse |
+| Record negative results too | A larger OCR model was worse; a calculator tool and several fixes for unanswerable questions did not help |
 
 ## Running
 
@@ -224,5 +224,4 @@ Code comments are in Chinese.
 - Evaluation dataset: [MMLongBench-Doc](https://huggingface.co/datasets/yubo2333/MMLongBench-Doc); answers are scored with the dataset's own extraction and scoring code (`docrag/generation/mmlongbench_official/`).
   - **Snapshot used here**: downloaded on 2026-09-14, `data/train-00000-of-00001.parquet` at commit `2ff6aa92`, **1082 questions / 135 PDFs / 6522 pages**. Of these, 223 are unanswerable and 845 have valid gold pages for retrieval evaluation.
   - The question count changes as the dataset repository is updated (the Hugging Face viewer showed 1.09k rows at the time of writing). **All scores here come from that snapshot and the dataset's own string-matching scorer, and are not directly comparable with public scores on other snapshots or under other scoring.**
-- Dataset used for method selection: [MP-DocVQA](https://huggingface.co/datasets/lmms-lab/MP-DocVQA).
 - Embedding, reranking and visual answering use Alibaba Cloud [Model Studio (Bailian)](https://bailian.console.aliyun.com/); vector store [Milvus](https://milvus.io/); OCR [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR).

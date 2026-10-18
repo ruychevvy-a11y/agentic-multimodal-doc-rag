@@ -15,8 +15,6 @@ API_KEY = os.getenv("DASHSCOPE_API_KEY")
 # =============================================#
 
 # 数据集登记表：每个数据集各自的选择都写在这里
-#   source          = 页面形态：hf_images 每页一张图 / pdf 原生 PDF
-#   hf_repo         = HuggingFace 仓库名
 #   queries         = 取前多少道题，None 表示全部
 #   text_model      = 文本 dense 路的嵌入模型
 #   text_field      = 文本 dense 向量在 Milvus 里的字段名
@@ -25,27 +23,7 @@ API_KEY = os.getenv("DASHSCOPE_API_KEY")
 #   rerank_depth    = 第一阶段取前多少页交给重排
 #   routes          = 这个数据集上评测的路线
 DATASETS = {
-    "mpdocvqa": {
-        "source": "hf_images",
-        "hf_repo": "lmms-lab/MP-DocVQA",
-        "queries": 2000,
-        "text_model": "text-embedding-v4",
-        "text_field": "txt_qwv4",
-        "convex_weights": {"convex_bm25_text": (0.6, 0.4)},
-        "rerank_instruct": "Given a question about a scanned document, judge whether the page contains the answer",
-        "rerank_depth": 20,
-        "routes": (
-            "image_dense",
-            "text_dense",
-            "text_bm25",
-            "rrf_bm25_text",
-            "convex_bm25_text",
-            "rerank_convex_bm25_text",
-        ),
-    },
     "mmlongbench": {
-        "source": "pdf",
-        "hf_repo": "yubo2333/MMLongBench-Doc",
         "queries": None,
         "text_model": "qwen3.7-text-embedding",
         "text_field": "txt_qw37",
@@ -63,10 +41,8 @@ DATASETS = {
 }
 
 # 当前数据集：换数据集只改这一行
-DATASET = "mmlongbench"  # mpdocvqa / mmlongbench
+DATASET = "mmlongbench"
 
-DATASET_SOURCE = DATASETS[DATASET]["source"]
-HF_REPO = DATASETS[DATASET]["hf_repo"]
 TARGET_QUERIES = DATASETS[DATASET]["queries"]
 EVALUATION_ROUTES = DATASETS[DATASET]["routes"]
 
@@ -151,9 +127,6 @@ TEXT_EMBEDDING_DIM = 1024
 
 # 每题最终返回多少页
 RETRIEVE_K = 10
-
-# RRF 平滑常数：融合分 = Σ 1/(RRF_K + 名次)
-RRF_K = 60
 
 # 融合时每一路取前多少个候选
 FUSION_DEPTH = 50

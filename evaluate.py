@@ -6,15 +6,8 @@ from docrag import config
 from docrag.evaluation import evaluate
 from docrag.jsonl import load_jsonl
 from docrag.retrieval.dense import image_dense_retrieval, text_dense_retrieval
-from docrag.retrieval.fusion import (
-    convex_bm25_text_image_retrieval,
-    convex_bm25_text_retrieval,
-    rrf_bm25_text_retrieval,
-)
-from docrag.retrieval.rerank import (
-    rerank_convex_bm25_text_image_retrieval,
-    rerank_convex_bm25_text_retrieval,
-)
+from docrag.retrieval.fusion import convex_bm25_text_image_retrieval
+from docrag.retrieval.rerank import rerank_convex_bm25_text_image_retrieval
 from docrag.retrieval.sparse import text_bm25_retrieval
 
 # 路线名 --> 造检索器的函数；每个数据集评测哪些路线见 config 登记表
@@ -22,10 +15,7 @@ ROUTES = {
     "image_dense": image_dense_retrieval,
     "text_dense": text_dense_retrieval,
     "text_bm25": text_bm25_retrieval,
-    "rrf_bm25_text": rrf_bm25_text_retrieval,
-    "convex_bm25_text": convex_bm25_text_retrieval,
     "convex_bm25_text_image": convex_bm25_text_image_retrieval,
-    "rerank_convex_bm25_text": rerank_convex_bm25_text_retrieval,
     "rerank_convex_bm25_text_image": rerank_convex_bm25_text_image_retrieval,
 }
 

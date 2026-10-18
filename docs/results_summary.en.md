@@ -5,7 +5,7 @@
   <a href="./results_summary.en.md"><img alt="English" src="https://img.shields.io/badge/English-DBEDFA"></a>
 </p>
 
-Every number in the README comes from here; raw results are in `evaluations/<dataset>/<closed|open>/results_*.json`. All comparisons are paired bootstrap 95% confidence intervals over the same questions; **\* means the interval excludes 0**.
+Every number in the README comes from here; raw results are in `evaluations/mmlongbench/<closed|open>/results_*.json`, and the retrieval selection results in `evaluations/mmlongbench/retrieval_selection/results_*.json`. All comparisons are paired bootstrap 95% confidence intervals over the same questions; **\* means the interval excludes 0**.
 
 ## Data
 
@@ -13,8 +13,7 @@ Every number in the README comes from here; raw results are in `evaluations/<dat
 |---|---|
 | MMLongBench-Doc | 135 PDFs / 6522 pages / 1082 questions; 223 unanswerable; 845 with valid gold pages, used for retrieval evaluation |
 | Page source | PDF text layer 4775 pages / OCR 1747 pages |
-| Visual descriptions | 5377 pages contain describable charts or photos, 1145 do not |
-| MP-DocVQA (parameter selection) | 2000 questions / 2740 pages |
+| Visual descriptions | 5377 pages received a description; in 1619 of them the model answered NONE and then added a note (mostly "no charts on this page" plus a one-line summary), which the filter missed because it only catches a bare NONE; 1145 pages have none |
 
 ## Retrieval
 
@@ -29,11 +28,53 @@ Closed-domain, 845 questions (retrieval only within the question's own document)
 | **+ reranking (top 30 candidates, current system)** | **0.581** | **0.897** | **0.826** | **0.731** |
 | Control: page text without visual descriptions | 0.526 | 0.872 | 0.776 | 0.675 |
 
-- **Reranking gives the largest gain**: convex combination --> reranking r@1 +0.116, far above the +0.032 that three-way fusion adds over the best single route.
+- **Reranking gives the largest gain**: convex combination --> reranking r@1 +0.116\*, far above the +0.032\* that three-way fusion adds over the best single route.
 - **Visual descriptions come second**: r@1 +0.055\*, all gold pages in top 4 +0.057\*; figure evidence 0.601 --> **0.718 (+0.117\*)**. Describing the whole corpus once costs ¥4.32.
 - **Image dense is the weakest route but stays**: removing it lowers "all gold pages in top 30" by 0.009\*.
 - **Open-domain is much harder** (before visual descriptions): reranked r@1 0.437 / MRR 0.618, convex 0.358 / 0.531, BM25 0.309 / 0.452.
 - **Parsing is not the bottleneck** (before visual descriptions): r@1 0.498 when all gold pages are OCR pages, 0.540 when all are text-layer pages.
+
+### Fusion method
+
+845 closed-domain questions, top 50 from each route; methods with parameters use 2-fold cross-validation and report out-of-fold numbers. Raw results: `evaluations/mmlongbench/retrieval_selection/results_fusion.json`.
+
+| Method | r@1 | r@10 | All gold pages in top 30 | Δr@1 vs BM25 |
+|---|---|---|---|---|
+| BM25 | 0.433 | 0.809 | 0.891 | — |
+| Standard RRF (k=60, three routes, equal weights) | 0.404 | 0.828 | 0.931 | −0.030\* |
+| RRF (k by cross-validation; both folds pick 1) | 0.448 | 0.849 | 0.941 | +0.015 |
+| Weighted RRF (k and weights by cross-validation) | 0.448 | 0.852 | 0.935 | +0.015 |
+| Convex combination (weights by cross-validation) | 0.464 | 0.848 | 0.936 | +0.031\* |
+| **Convex combination (current 0.25 / 0.55 / 0.20)** | **0.465** | **0.847** | **0.947** | **+0.032\*** |
+
+- **Standard RRF falls below BM25 alone**: with k=60 the rank differences between routes are flattened; only with k tuned down to 1 does it catch up.
+- **Convex beats standard RRF**: r@1 +0.060\*, and the top 30 sent to the reranker hold all gold pages 0.015\* more often. Against RRF with tuned k the gap is +0.016, not significant; on a tie the current method stays.
+- **Weights**: the two folds pick different weights (0.65 / 0.30 / 0.05 and 0.35 / 0.55 / 0.10), and the current weights tie with cross-validation (+0.001), so they are kept.
+
+### Reranking
+
+- **Gain**: convex --> reranking r@1 +0.116\* [+0.090, +0.143], all gold pages in top 4 +0.099\*, MRR +0.115\* (`results_rerank_gain.json`).
+- **Number of candidates**: before visual descriptions, reranking 20 / 30 / 50 candidates was compared: 30 beats 20 by r@1 +0.007\*, and 50 ties with 30 (r@1 0.527 vs 0.526, MRR 0.781 vs 0.779), so 30 saves cost. The current convex top 50 hold all gold pages 0.030\* more often than the top 30 (0.976 vs 0.947); in that comparison the extra candidates did not turn into a gain after reranking.
+
+### Chunking
+
+For text dense, a page scores the highest cosine among its chunks; closed-domain exact search, with the same question vector for all three. Chunks are cut from the indexed page text (body plus visual description). Raw results: `results_chunking.json`.
+
+| Text dense alone | Chunks | r@1 | Δr@1 vs whole page | Long pages Δr@1 | All gold pages in top 30 |
+|---|---|---|---|---|---|
+| Whole page | 6522 | 0.419 | — | — | 0.923 |
+| Fixed 180-word window, 20-word overlap | 18278 | 0.452 | +0.033\* | +0.073\* | 0.932 |
+| Structural: PDF text blocks / OCR lines packed to ≤ 1100 characters, visual description as its own chunks | 22409 | 0.457 | +0.038\* | +0.095\* | 0.929 |
+
+| Three-way convex (current weights) | r@1 | Δr@1 vs whole page | All gold pages in top 30 | Δ vs whole page |
+|---|---|---|---|---|
+| Whole page | 0.465 | — | 0.947 | — |
+| Fixed window | 0.489 | +0.024\* | 0.940 | −0.007 |
+| Structural | 0.488 | +0.024\* | 0.939 | −0.008 |
+
+- **Chunking helps the first stage**: the gain sits on long pages (average gold-page length in the top third, over 3127 characters); short pages show no significant change. Cross-validated weights give the same picture (+0.029\* / +0.034\*).
+- **The reranker's candidates barely change**: "all gold pages in the top 30" shows no significant change; 444 of the 845 questions come from documents of at most 30 pages, where the candidates are the whole document; on average 94% of the candidates are shared with the whole-page index.
+- **So the index stays per page**: the reranker scores each candidate on its full page text and only sees the candidate set, so chunking has little effect on the final result (inferred from candidate overlap; reranking was not re-run). Per page, retrieval, answer page images and gold labels share one unit, and the index has about a third as many rows.
 
 ## Answering
 
@@ -166,13 +207,13 @@ Measured on the full set, priced at qwen3.8-flash rates, excluding evaluation-ti
 
 | Choice | Evidence |
 |---|---|
-| Convex combination, not RRF | MP-DocVQA, 500 questions, r@1: convex 0.486 > BM25 0.458 > RRF 0.420 |
-| Add a cross-encoder reranker | r@1 +0.132\* over convex on MP-DocVQA, +0.116 on MMLongBench |
-| Rerank the top 30 candidates | Top 30 and top 50 tie; 30 saves cost |
-| Convex weights (0.25 / 0.55 / 0.20) | Re-tuning with 2-fold cross-validation was not significant and the two folds picked different weights, so the original values were kept |
+| Convex combination, not RRF | Cross-validated r@1: convex 0.464, +0.060\* over standard RRF and +0.016 over RRF with tuned k (a tie, so the current method stays) |
+| Add a cross-encoder reranker | r@1 +0.116\* over convex |
+| Rerank the top 30 candidates | Compared before visual descriptions: top 30 and top 50 tie (r@1 0.526 vs 0.527); 30 saves cost |
+| Convex weights (0.25 / 0.55 / 0.20) | Cross-validated out-of-fold 0.464 ties the current 0.465; the two folds picked different weights, so the original values were kept |
 | Answer from 4 pages | k=6 gives +0.015 overall, not significant; only questions with incomplete evidence gain (+0.134\*), unanswerable questions get answered more often, and cost rises 30% |
 | 1024-token thinking budget (shared by both routes) | 200 questions: default 0.628 / 1024 0.612 / off 0.613, a tie; p90 68.0 s --> 15.6 s |
 | Generation model qwen3.8-flash | 200 questions: 3.8-flash 0.629 > 3.7-flash 0.593 > 3.7-plus 0.588 > qwen3-vl-plus 0.568 |
 | OCR with PP-OCRv6_medium | The larger v5_server gives −0.042\* answer hit rate and is 2.4× slower |
-| No chunking within a page | Evidence is page-level; chunking, a different embedding model and structured tables were all insignificant |
+| No chunking within a page | Chunking lifts fused r@1 by 0.024\*, but leaves "all gold pages in the top 30 sent to the reranker" unchanged; the reranker reads whole pages |
 | No routing at the retrieval stage | Per-question best single route (oracle) MRR 0.786 ≈ reranking 0.779 |

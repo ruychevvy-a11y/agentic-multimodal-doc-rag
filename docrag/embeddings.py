@@ -11,7 +11,6 @@ from docrag import config
 # 各嵌入模型的接口约束：单次最多几条、返回结果里标原顺序的字段
 EMBEDDING_MODEL_LIMITS = {
     "tongyi-embedding-vision-plus": {"batch_size": 20, "index_key": "index"},
-    "text-embedding-v4": {"batch_size": 10, "index_key": "text_index"},
     "qwen3.7-text-embedding": {"batch_size": 20, "index_key": "text_index"},
 }
 
